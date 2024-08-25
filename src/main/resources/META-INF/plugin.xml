@@ -1,0 +1,56 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.dropdrage.SimpleComposePreviewGenerator</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Simple Compose Preview Generator</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://github.com/DropDrage">DropDrage</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    Enter short description for your plugin here.<br>
+    <em>most HTML tags may be used</em>
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>org.jetbrains.android</depends>
+    <depends>androidx.compose.plugins.idea</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable
+                parentId="other"
+                instance="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
+                id="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
+                displayName="Simple Compose Preview Generator"
+                nonDefaultProject="true"/>
+        <applicationService
+                serviceImplementation="com.dropdrage.simpleComposePreviewGenerator.config.ConfigService"/>
+
+        <intentionAction>
+            <language>kotlin</language>
+            <className>com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreview</className>
+            <category>Android</category>
+        </intentionAction>
+        <fileBasedIndex
+                implementation="com.dropdrage.simpleComposePreviewGenerator.index.ComposeThemeIndex"/>
+    </extensions>
+    <actions>
+        <action id="com.dropdrage.simpleComposePreviewGenerator.action.GenerateAllComposePreview"
+                class="com.dropdrage.simpleComposePreviewGenerator.action.GenerateAllComposePreview"
+                text="Generate all Compose previews">
+            <add-to-group group-id="GenerateGroup" anchor="first"/>
+            <!--            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt P"/>-->
+        </action>
+    </actions>
+</idea-plugin>
