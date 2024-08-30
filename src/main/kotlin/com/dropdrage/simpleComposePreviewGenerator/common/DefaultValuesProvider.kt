@@ -55,20 +55,30 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private const val KOTLIN_COLLECTIONS_SET = "$KOTLIN_COLLECTIONS_PACKAGE.Set"
     private const val KOTLIN_COLLECTIONS_MAP = "$KOTLIN_COLLECTIONS_PACKAGE.Map"
 
-    private const val EMPTY_LIST = "$KOTLIN_COLLECTIONS_PACKAGE.emptyList()"
-    private const val LIST_OF = "$KOTLIN_COLLECTIONS_PACKAGE.listOf()"
-    private const val ARRAY_LIST_OF = "$KOTLIN_COLLECTIONS_PACKAGE.arrayListOf()"
+    private const val EMPTY_ARRAY = "emptyArray()"
+    private const val ARRAY_OF = "arrayOf()"
 
-    private const val EMPTY_SET = "$KOTLIN_COLLECTIONS_PACKAGE.emptySet()"
-    private const val SET_OF = "$KOTLIN_COLLECTIONS_PACKAGE.setOf()"
-    private const val HASH_SET_OF = "$KOTLIN_COLLECTIONS_PACKAGE.hashSetOf()"
-    private const val LINKED_SET_OF = "$KOTLIN_COLLECTIONS_PACKAGE.linkedSetOf()"
-    private const val SORTED_SET_OF = "$KOTLIN_COLLECTIONS_PACKAGE.sortedSetOf()"
+    private const val EMPTY_LIST = "emptyList()"
+    private const val LIST_OF = "listOf()"
+    private const val MUTABLE_LIST_OF = "mutableListOf()"
+    private const val ARRAY_LIST_OF = "arrayListOf()"
 
-    private const val EMPTY_MAP = "$KOTLIN_COLLECTIONS_PACKAGE.emptyMap()"
-    private const val MAP_OF = "$KOTLIN_COLLECTIONS_PACKAGE.mapOf()"
-    private const val HASH_MAP_OF = "$KOTLIN_COLLECTIONS_PACKAGE.hashMapOf()"
-    private const val LINKED_MAP_OF = "$KOTLIN_COLLECTIONS_PACKAGE.linkedMapOf()"
+    private const val EMPTY_SET = "emptySet()"
+    private const val SET_OF = "setOf()"
+    private const val MUTABLE_SET_OF = "mutableSetOf()"
+    private const val HASH_SET_OF = "hashSetOf()"
+    private const val LINKED_SET_OF = "linkedSetOf()"
+    private const val SORTED_SET_OF = "sortedSetOf()"
+
+    private const val EMPTY_MAP = "emptyMap()"
+    private const val MAP_OF = "mapOf()"
+    private const val MUTABLE_MAP_OF = "mutableMapOf()"
+    private const val HASH_MAP_OF = "hashMapOf()"
+    private const val SORTED_MAP_OF = "sortedMapOf()"
+    private const val LINKED_MAP_OF = "linkedMapOf()"
+
+    private const val EMPTY_SEQUENCE = "emptySequence()"
+    private const val SEQUENCE_OF = "sequenceOf()"
 
     private const val PERSISTENT_LIST_OF = "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.persistentListOf()"
     private const val PERSISTENT_SET_OF = "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.persistentSetOf()"
@@ -79,14 +89,14 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
      * Only List tree.
      */
     private val supportedIterableLists: MutableMap<FqNameString, Value> = hashMapOf(
-        "$KOTLIN_COLLECTIONS_PACKAGE.MutableList" to "$KOTLIN_COLLECTIONS_PACKAGE.mutableListOf()",
+        "$KOTLIN_COLLECTIONS_PACKAGE.MutableList" to MUTABLE_LIST_OF,
         "$KOTLIN_COLLECTIONS_PACKAGE.ArrayList" to ARRAY_LIST_OF,
         "$JAVA_UTIL_PACKAGE.AbstractList" to ARRAY_LIST_OF,
         "$JAVA_UTIL_PACKAGE.ArrayList" to ARRAY_LIST_OF,
     )
 
     private val supportedSets: MutableMap<FqNameString, Value> = hashMapOf(
-        "$KOTLIN_COLLECTIONS_PACKAGE.MutableSet" to "$KOTLIN_COLLECTIONS_PACKAGE.mutableSetOf()",
+        "$KOTLIN_COLLECTIONS_PACKAGE.MutableSet" to MUTABLE_SET_OF,
         "$KOTLIN_COLLECTIONS_PACKAGE.HashSet" to HASH_SET_OF,
         "$KOTLIN_COLLECTIONS_PACKAGE.LinkedHashSet" to LINKED_SET_OF,
         "$JAVA_UTIL_PACKAGE.HashSet" to HASH_SET_OF,
@@ -96,12 +106,12 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     )
 
     private val supportedMaps: MutableMap<FqNameString, Value> = hashMapOf(
-        "$KOTLIN_COLLECTIONS_PACKAGE.MutableMap" to "$KOTLIN_COLLECTIONS_PACKAGE.mutableMapOf()",
+        "$KOTLIN_COLLECTIONS_PACKAGE.MutableMap" to MUTABLE_MAP_OF,
         "$KOTLIN_COLLECTIONS_PACKAGE.HashMap" to HASH_MAP_OF,
         "$KOTLIN_COLLECTIONS_PACKAGE.LinkedHashMap" to LINKED_MAP_OF,
         "$JAVA_UTIL_PACKAGE.HashMap" to HASH_MAP_OF,
         "$JAVA_UTIL_PACKAGE.LinkedHashMap" to LINKED_MAP_OF,
-        "$JAVA_UTIL_PACKAGE.SortedMap" to "$KOTLIN_COLLECTIONS_PACKAGE.sortedMapOf()",
+        "$JAVA_UTIL_PACKAGE.SortedMap" to SORTED_MAP_OF,
     )
 
     private val supportedKotlinxImmutables: Map<FqNameString, Value> = hashMapOf(
@@ -144,16 +154,16 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 
         parameterValueType.isPrimitiveArray() -> buildPrimitiveArray(parameterValueType)
         parameterValueType.isArrayOrNullableArray() ->
-            if (USE_EMPTY_ARRAY_SETTING) "emptyArray()"
-            else "arrayOf()"
+            if (USE_EMPTY_ARRAY_SETTING) EMPTY_ARRAY
+            else ARRAY_OF
 
         parameterValueType.isIterableListHasKotlinBuilder() -> buildIterableWithKotlinBuilder(parameterValueType)
         parameterValueType.isSetHasKotlinBuilder() -> buildSetWithKotlinBuilder(parameterValueType)
         parameterValueType.isMapHasKotlinBuilder() -> buildMapWithKotlinBuilder(parameterValueType)
         parameterValueType.isImmutableHasKotlinBuilder() -> buildImmutablesWithKotlinBuilder(parameterValueType)
         parameterValueType.matchesFqName("$KOTLIN_SEQUENCES_PACKAGE.Sequence") ->
-            if (USE_EMPTY_SEQUENCE_SETTING) "$KOTLIN_SEQUENCES_PACKAGE.emptySequence()"
-            else "$KOTLIN_SEQUENCES_PACKAGE.sequenceOf()" // sequence {}, emptySequence(), generateSequence { }
+            if (USE_EMPTY_SEQUENCE_SETTING) EMPTY_SEQUENCE
+            else SEQUENCE_OF // sequence {}, emptySequence(), generateSequence { }
 
         parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability -> buildLambdaDefault(parameterValueType)
 
