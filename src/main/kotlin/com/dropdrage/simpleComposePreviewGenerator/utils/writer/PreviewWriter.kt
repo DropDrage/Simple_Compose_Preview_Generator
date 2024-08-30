@@ -3,6 +3,8 @@ package com.dropdrage.simpleComposePreviewGenerator.utils.writer
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewLocation
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositionChangeListener
+import com.intellij.codeInsight.template.Template
+import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
@@ -48,8 +50,12 @@ internal object PreviewWriter : PreviewPositionChangeListener {
         file: KtFile,
         functionWithPreview: FunctionWithPreview,
         newLine: PsiElement,
+        argumentsTemplate: Template,
     ) {
-        write(project, editor, file, listOf(functionWithPreview), newLine, false)
+        write(project, editor, file, listOf(functionWithPreview), newLine, false, true) {
+            val templateManager = TemplateManager.getInstance(project)
+            templateManager.startTemplate(editor!!, argumentsTemplate)
+        }
     }
 
     fun write(
@@ -58,24 +64,42 @@ internal object PreviewWriter : PreviewPositionChangeListener {
         file: KtFile,
         functionWithPreviews: List<FunctionWithPreview>,
         newLine: PsiElement,
-        isCommandRequired: Boolean,
     ) {
-        val writeLambda = {
+        write(project, editor, file, functionWithPreviews, newLine, true, false)
+    }
+
+    private fun write(
+        project: Project,
+        editor: Editor?,
+        file: KtFile,
+        functionWithPreviews: List<FunctionWithPreview>,
+        newLine: PsiElement,
+        isCommandRequired: Boolean,
+        shouldMoveToArgumentsListStart: Boolean,
+        afterWriteAction: (() -> Unit)? = null,
+    ) {
+        val writeLambda: () -> Unit = {
             val shortenReferences = ShortenReferences.DEFAULT
             val codeStyleManager = CodeStyleManager.getInstance(project)
 
-            val firstElementTextOffset: Int
+            val argumentsStartPosition: Int
             val addTime = measureTime {
-                firstElementTextOffset = writer.addElementsToFile(file, functionWithPreviews, newLine)
+                argumentsStartPosition = writer.addElementsToFile(
+                    file,
+                    functionWithPreviews,
+                    newLine,
+                    shouldMoveToArgumentsListStart,
+                )
             }
             println("Add time: $addTime")
-            moveCaretAndScroll(editor, firstElementTextOffset)
+            moveCaretAndScroll(editor, argumentsStartPosition)
 
             val commitTime = measureTime { file.commitAndUnblockDocument() }
             println("Commit time: $commitTime")
 
             val shortenTime = measureTime { shortenReferences.process(file) }
             println("Shorten time: $shortenTime")
+
             val reformatTime = measureTime {
                 //                val changedRangesInfo = VcsFacade.getInstance().getChangedRangesInfo(file)
                 //                if (changedRangesInfo != null) {
@@ -87,6 +111,8 @@ internal object PreviewWriter : PreviewPositionChangeListener {
                 //                }
             } // ToDo file or psi?
             println("Reformat time: $reformatTime")
+
+            afterWriteAction?.invoke()
         }
 
         if (isCommandRequired) {

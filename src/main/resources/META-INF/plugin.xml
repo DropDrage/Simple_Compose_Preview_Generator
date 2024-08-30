@@ -34,16 +34,14 @@
                 id="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
                 displayName="Simple Compose Preview Generator"
                 nonDefaultProject="true"/>
-        <applicationService
-                serviceImplementation="com.dropdrage.simpleComposePreviewGenerator.config.ConfigService"/>
+        <applicationService serviceImplementation="com.dropdrage.simpleComposePreviewGenerator.config.ConfigService"/>
 
         <intentionAction>
             <language>kotlin</language>
             <className>com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreview</className>
             <category>Android</category>
         </intentionAction>
-        <fileBasedIndex
-                implementation="com.dropdrage.simpleComposePreviewGenerator.index.ComposeThemeIndex"/>
+        <fileBasedIndex implementation="com.dropdrage.simpleComposePreviewGenerator.index.ComposeThemeIndex"/>
     </extensions>
     <actions>
         <action id="com.dropdrage.simpleComposePreviewGenerator.action.GenerateAllComposePreview"

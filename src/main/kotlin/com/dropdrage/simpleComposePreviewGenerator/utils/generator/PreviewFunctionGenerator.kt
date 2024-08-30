@@ -1,4 +1,4 @@
-package com.dropdrage.simpleComposePreviewGenerator.utils
+package com.dropdrage.simpleComposePreviewGenerator.utils.generator
 
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.FirstAnnotation
@@ -12,8 +12,6 @@ internal object PreviewFunctionGenerator {
         get() = ConfigService.config.firstAnnotation == FirstAnnotation.PREVIEW
     private val isPreviewHasExpressionBody: Boolean
         get() = ConfigService.config.previewBodyType == PreviewBodyType.EXPRESSION
-    private val isTrailingCommaEnabled: Boolean
-        get() = ConfigService.config.isTrailingCommaEnabled
     private val isThemeEnabled: Boolean
         get() = ConfigService.config.isThemeEnabled
 
@@ -41,7 +39,6 @@ internal object PreviewFunctionGenerator {
 
         append(functionName).append("(\n")
             .append(argumentsList)
-        if (isTrailingCommaEnabled) append(",\n")
         append(")\n")
 
         if (theme != null) append("}\n")

@@ -1,6 +1,6 @@
 package com.dropdrage.simpleComposePreviewGenerator.intention
 
-import com.dropdrage.simpleComposePreviewGenerator.common.ComposePreviewCommon
+import com.dropdrage.simpleComposePreviewGenerator.common.GenerateComposePreviewCommon
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.createOnlyNewLine
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.FunctionWithPreview
@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.toml.lang.psi.ext.elementType
@@ -18,7 +19,7 @@ import kotlin.time.measureTime
 
 internal class GenerateComposePreview : PsiElementBaseIntentionAction() {
 
-    private val previewCommon = ComposePreviewCommon()
+    private val previewCommon = GenerateComposePreviewCommon()
 
 
     override fun isAvailable(project: Project, editor: Editor?, element: PsiElement): Boolean {
@@ -32,27 +33,30 @@ internal class GenerateComposePreview : PsiElementBaseIntentionAction() {
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
         val allTime = measureTime {
-            val functionElement = getFunctionOrNull(element) ?: error("${element.text} is not a Kotlin function")
+            val targetFunction = getFunctionOrNull(element) ?: error("${element.text} is not a Kotlin function")
 
-            val previewFunction = previewCommon.buildPreviewFunctionString(functionElement, project)
-            val previewPsi: PsiElement
+            val previewArgumentsTemplate = previewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
+            val previewFunction = previewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
+            val preview: KtElement
             val newLine: PsiElement
             val psiTime = measureTime {
                 val psiFactory = KtPsiFactory(project)
-                previewPsi = psiFactory.createFunction(previewFunction)
+                preview = psiFactory.createFunction(previewFunction)
                 newLine = psiFactory.createOnlyNewLine()
             }
             println("Psi time: $psiTime")
+            println(preview.text)
 
-            val containingKtFile = functionElement.containingKtFile
+            val containingKtFile = targetFunction.containingKtFile
             if (containingKtFile.isPhysical) {
                 val writeTime = measureTime {
                     PreviewWriter.write(
                         project,
                         editor,
                         containingKtFile,
-                        FunctionWithPreview(functionElement, previewPsi),
+                        FunctionWithPreview(targetFunction, preview),
                         newLine,
+                        previewArgumentsTemplate,
                     )
                 }
                 println("Write time: $writeTime")

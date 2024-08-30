@@ -12,7 +12,6 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isPrimitiveAr
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isString
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.kotlin.builtins.isFunctionOrKFunctionTypeWithAnySuspendability
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.parcelize.serializers.matchesFqName
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.isArrayOrNullableArray
@@ -125,10 +124,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     }
 
 
-    fun getDefaultForType(
-        parameterValueType: KotlinType,
-        functionDeclarationDescriptor: DeclarationDescriptorWithVisibility,
-    ): String = when {
+    fun getDefaultForType(parameterValueType: KotlinType): String = when {
         useNullForPrimitives && parameterValueType.isNullable() -> "null"
 
 //        parameterValueType.isBoolean() -> booleanProvider.getValue()
@@ -159,8 +155,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
             if (USE_EMPTY_SEQUENCE_SETTING) "$KOTLIN_SEQUENCES_PACKAGE.emptySequence()"
             else "$KOTLIN_SEQUENCES_PACKAGE.sequenceOf()" // sequence {}, emptySequence(), generateSequence { }
 
-        parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability ->
-            buildLambdaDefault(parameterValueType, functionDeclarationDescriptor)
+        parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability -> buildLambdaDefault(parameterValueType)
 
         parameterValueType.matchesFqName(COMPOSE_MODIFIER) -> COMPOSE_MODIFIER
 //        parameterValueType.isAbstract() || parameterValueType.isInterface() -> "/* TODO Unknown abstract element */"
@@ -211,10 +206,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private inline fun buildImmutablesWithKotlinBuilder(parameterValueType: KotlinType): String =
         supportedKotlinxImmutables[parameterValueType.fqNameString]!!
 
-    private fun buildLambdaDefault(
-        parameterValueType: KotlinType,
-        functionDeclarationDescriptor: DeclarationDescriptorWithVisibility,
-    ): String = buildString {
+    private fun buildLambdaDefault(parameterValueType: KotlinType): String = buildString {
         append('{')
 
         val arguments = parameterValueType.arguments
@@ -226,7 +218,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         }
         repeat(inputArgumentsCount) {
             if (it != 0) { // avoids redundant "," before defaults
-                append(FUNCTION_ARGUMENTS_SEPARATOR)
+                append(FUNCTION_ARGUMENTS_SEPARATOR).append(' ')
             }
             append('_')
         }
@@ -236,7 +228,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 
         val returnType = arguments.last().type
         if (!returnType.isUnit()) {
-            append(getDefaultForType(returnType, functionDeclarationDescriptor))
+            append(getDefaultForType(returnType))
         }
 
         append('}')

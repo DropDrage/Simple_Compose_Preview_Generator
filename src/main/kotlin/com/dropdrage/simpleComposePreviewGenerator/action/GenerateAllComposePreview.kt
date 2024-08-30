@@ -1,6 +1,6 @@
 package com.dropdrage.simpleComposePreviewGenerator.action
 
-import com.dropdrage.simpleComposePreviewGenerator.common.ComposePreviewCommon
+import com.dropdrage.simpleComposePreviewGenerator.common.GenerateComposePreviewCommon
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.createOnlyNewLine
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isComposePreviewFunction
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
@@ -27,7 +27,7 @@ private typealias PreviewFunctions = List<KtNamedFunction>
 @Suppress("NOTHING_TO_INLINE")
 internal class GenerateAllComposePreview : AnAction() {
 
-    private val previewCommon = ComposePreviewCommon()
+    private val previewCommon = GenerateComposePreviewCommon()
 
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -60,7 +60,7 @@ internal class GenerateAllComposePreview : AnAction() {
 
             val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
             val writeTime = measureTime {
-                PreviewWriter.write(project, editor, ktFile, composePreviews, newLine, true)
+                PreviewWriter.write(project, editor, ktFile, composePreviews, newLine)
             }
             println("/////////////// Write time: $writeTime")
         }
@@ -77,12 +77,11 @@ internal class GenerateAllComposePreview : AnAction() {
         println("Update: $time")
         e.presentation.isEnabledAndVisible = functions?.any {
             it.isTargetForComposePreviewWithoutPreview(functions)
-        } ?: false
+        } == true
     }
 
-    private inline fun KtNamedFunction.isTargetForComposePreviewWithoutPreview(
-        functions: PreviewFunctions,
-    ): Boolean = isTargetForComposePreview() && !hasPreviewIn(functions)
+    private inline fun KtNamedFunction.isTargetForComposePreviewWithoutPreview(functions: PreviewFunctions): Boolean =
+        isTargetForComposePreview() && !hasPreviewIn(functions)
 
     private fun KtNamedFunction.hasPreviewIn(functions: PreviewFunctions): Boolean =
         functions.any { function ->

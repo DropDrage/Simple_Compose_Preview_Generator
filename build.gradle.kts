@@ -4,7 +4,7 @@ import java.util.*
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.0.10"
+    id("org.jetbrains.kotlin.jvm") version "2.0.20"
     id("org.jetbrains.intellij.platform") version "2.0.1"
 }
 
