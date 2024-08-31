@@ -1,4 +1,4 @@
-package com.dropdrage.simpleComposePreviewGenerator.utils.extension
+package com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi
 
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor

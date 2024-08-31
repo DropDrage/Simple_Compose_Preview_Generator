@@ -1,6 +1,7 @@
 package com.dropdrage.simpleComposePreviewGenerator.action
 
 import com.dropdrage.simpleComposePreviewGenerator.common.GenerateComposePreviewCommon
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.createOnlyNewLine
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isComposePreviewFunction
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
@@ -11,6 +12,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.childrenOfType
 import org.jetbrains.kotlin.idea.core.script.configuration.utils.getKtFile
@@ -20,7 +22,6 @@ import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
-import kotlin.time.measureTime
 
 private typealias PreviewFunctions = List<KtNamedFunction>
 
@@ -31,14 +32,14 @@ internal class GenerateAllComposePreview : AnAction() {
 
 
     override fun actionPerformed(e: AnActionEvent) {
-        val allTime = measureTime {
+        LOG.logTimeOnDebug("/////////////// All") {
             val project = e.project
             val hostEditor = e.dataContext.hostEditor
             val ktFile = project?.getKtFile(hostEditor?.virtualFile) ?: error("No file found")
 
             val psiFactory = KtPsiFactory(project)
             val composePreviews: List<FunctionWithPreview>
-            val composePreviewsTime = measureTime {
+            LOG.logTimeOnDebug("/////////////// Compose") {
                 composePreviews = buildList {
                     val functions = ktFile.childrenOfType<KtNamedFunction>()
                     for (function in functions) {
@@ -46,35 +47,30 @@ internal class GenerateAllComposePreview : AnAction() {
                             val previewFunction = previewCommon.buildPreviewFunctionString(function, project)
 
                             val previewPsi: KtElement
-                            val psiTime = measureTime {
+                            LOG.logTimeOnDebug("/////////////// Psi") {
                                 previewPsi = psiFactory.createFunction(previewFunction)
                             }
-                            println("/////////////// Psi time: $psiTime")
                             add(FunctionWithPreview(function, previewPsi))
                         }
                     }
                 }
             }
-            println("/////////////// Compose time: $composePreviewsTime")
             val newLine = psiFactory.createOnlyNewLine()
 
             val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
-            val writeTime = measureTime {
+            LOG.logTimeOnDebug("/////////////// Write") {
                 PreviewWriter.write(project, editor, ktFile, composePreviews, newLine)
             }
-            println("/////////////// Write time: $writeTime")
         }
-        println("/////////////// All time: $allTime")
     }
 
     override fun update(e: AnActionEvent) {
         val functions: PreviewFunctions?
-        val time = measureTime {
+        LOG.logTimeOnDebug("Update") {
             functions = e.project
                 ?.getKtFile(e.dataContext.hostEditor?.virtualFile)
                 ?.childrenOfType<KtNamedFunction>()
         }
-        println("Update: $time")
         e.presentation.isEnabledAndVisible = functions?.any {
             it.isTargetForComposePreviewWithoutPreview(functions)
         } == true
@@ -92,5 +88,10 @@ internal class GenerateAllComposePreview : AnAction() {
         }
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
+
+
+    companion object {
+        private val LOG = logger<GenerateAllComposePreview>()
+    }
 
 }

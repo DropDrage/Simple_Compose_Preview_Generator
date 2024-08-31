@@ -1,14 +1,18 @@
 package com.dropdrage.simpleComposePreviewGenerator.utils.writer
 
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.resolveReferencedPsiElement
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
-import kotlin.time.measureTime
 
-internal abstract class BasePsiElementsWriter(private val isNewLineAfterAllPreviewsIgnored: Boolean) {
+internal abstract class BasePsiElementsWriter(
+    private val LOG: Logger,
+    private val isNewLineAfterAllPreviewsIgnored: Boolean,
+) {
 
     fun addElementsToFile(
         file: KtFile,
@@ -40,19 +44,17 @@ internal abstract class BasePsiElementsWriter(private val isNewLineAfterAllPrevi
 
     private fun PsiElement.getFirstArgumentValueOffset(target: PsiElement): Int {
         val child: PsiElement
-        val time = measureTime {
+        LOG.logTimeOnDebug("Child") {
             child = findTargetCallElement(target).findDescendantOfType<KtValueArgument>()!!.lastChild
         }
-        println("Child time: $time")
         return child.textOffset
     }
 
     private fun PsiElement.getArgumentsListStartOffset(target: PsiElement): Int {
         val child: PsiElement
-        val time = measureTime {
+        LOG.logTimeOnDebug("Child") {
             child = findTargetCallElement(target).lastChild.firstChild.nextSibling
         }
-        println("Child time: $time")
         return child.textOffset
     }
 

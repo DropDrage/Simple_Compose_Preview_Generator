@@ -3,6 +3,7 @@ package com.dropdrage.simpleComposePreviewGenerator.index
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ShortNames
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.fqNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.shortNameStringSafe
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileContent
 import org.jetbrains.kotlin.idea.KotlinFileType
@@ -16,6 +17,8 @@ import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileContent> {
 
     const val THEMES_KEY = "Theme"
+
+    private val LOG = thisLogger()
 
 
     override fun map(fileContent: FileContent): Map<String, ThemeIndexValue> = when (fileContent.fileType) {
@@ -39,7 +42,7 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
         override fun visitNamedFunction(function: KtNamedFunction) {
             super.visitNamedFunction(function)
 
-            println("Visit: $function")
+            LOG.debug("Visit: $function")
             if (function.isComposableTheme()) {
                 consumer(function.fqNameString)
             }
@@ -51,18 +54,18 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
                 && anyDescendantOfType<KtCallExpression> { it.callName() == ShortNames.Function.MATERIAL_THEME }
         }
 
-        private fun canBeComposableTheme(annotationEntries: MutableList<KtAnnotationEntry>): Boolean {
+        private fun canBeComposableTheme(annotationEntries: List<KtAnnotationEntry>): Boolean {
             var isComposableFunction = false
             for (annotation in annotationEntries) {
                 if (!isComposableFunction && annotation.shortNameStringSafe == ShortNames.Annotation.COMPOSABLE) {
                     isComposableFunction = true
                 } else if (annotation.shortNameStringSafe == ShortNames.Annotation.PREVIEW) {
-                    println("//// return false")
+                    LOG.debug("//// return false")
                     return false
                 }
             }
 
-            println("//// $isComposableFunction")
+            LOG.debug("//// $isComposableFunction")
             return isComposableFunction
         }
 

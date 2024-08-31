@@ -11,6 +11,7 @@ import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.codeInsight.template.impl.MacroCallNode
 import com.intellij.codeInsight.template.macro.CompleteSmartMacro
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor
@@ -47,7 +48,7 @@ internal class PreviewArgumentsListGenerator {
                 if (argumentValueType != null) {
                     append(getDefaultForType(argumentValueType))
                 } else {
-                    println("Descriptor null: ${parameter.name}")
+                    LOG.warn("Descriptor null: ${parameter.name}")
                 }
             }
         }
@@ -105,6 +106,8 @@ internal class PreviewArgumentsListGenerator {
 
     companion object {
         private const val CALL_ARGUMENTS_SEPARATOR = "$FUNCTION_ARGUMENTS_SEPARATOR\n"
+
+        private val LOG = logger<PreviewArgumentsListGenerator>()
     }
 
 }

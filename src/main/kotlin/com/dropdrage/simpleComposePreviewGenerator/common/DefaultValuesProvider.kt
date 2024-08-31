@@ -11,6 +11,7 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isPrimitiveArray
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isString
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.thisLogger
 import org.jetbrains.kotlin.builtins.isFunctionOrKFunctionTypeWithAnySuspendability
 import org.jetbrains.kotlin.parcelize.serializers.matchesFqName
 import org.jetbrains.kotlin.types.KotlinType
@@ -28,6 +29,8 @@ private typealias Value = String
 
 @Suppress("NOTHING_TO_INLINE")
 internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener {
+
+    private val LOG = thisLogger()
 
     //region Settings
     private val USE_EMPTY_ARRAY_SETTING: Boolean
@@ -245,7 +248,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     }
 
     override fun onChanged() {
-        println("Changed listener")
+        LOG.debug("Changed listener")
         addPossiblyEmptyBuilders()
     }
 

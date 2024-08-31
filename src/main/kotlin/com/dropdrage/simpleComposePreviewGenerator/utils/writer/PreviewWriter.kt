@@ -6,6 +6,7 @@ import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositi
 import com.intellij.codeInsight.template.Template
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
@@ -20,6 +21,8 @@ import kotlin.time.measureTime
 internal object PreviewWriter : PreviewPositionChangeListener {
 
     private const val WRITE_COMPOSE_PREVIEW_COMMAND = "write_compose_preview"
+
+    private val LOG = thisLogger()
 
     private var currentWriterType: PreviewLocation = ConfigService.config.previewLocation
     private var writer: BasePsiElementsWriter
@@ -91,26 +94,26 @@ internal object PreviewWriter : PreviewPositionChangeListener {
                     shouldMoveToArgumentsListStart,
                 )
             }
-            println("Add time: $addTime")
+            LOG.debug("Add time: $addTime")
             moveCaretAndScroll(editor, argumentsStartPosition)
 
             val commitTime = measureTime { file.commitAndUnblockDocument() }
-            println("Commit time: $commitTime")
+            LOG.debug("Commit time: $commitTime")
 
             val shortenTime = measureTime { shortenReferences.process(file) }
-            println("Shorten time: $shortenTime")
+            LOG.debug("Shorten time: $shortenTime")
 
             val reformatTime = measureTime {
                 //                val changedRangesInfo = VcsFacade.getInstance().getChangedRangesInfo(file)
                 //                if (changedRangesInfo != null) {
-                //                    println("Reformat chages")
+                //                    LOG.debug("Reformat chages")
                 //                    codeStyleManager.reformatChanges(file, changedRangesInfo,)
                 //                } else {
-                //                    println("Reformat")
+                //                    LOG.debug("Reformat")
                 codeStyleManager.reformat(file)
                 //                }
             } // ToDo file or psi?
-            println("Reformat time: $reformatTime")
+            LOG.debug("Reformat time: $reformatTime")
 
             afterWriteAction?.invoke()
         }
@@ -124,7 +127,7 @@ internal object PreviewWriter : PreviewPositionChangeListener {
 
     private fun moveCaretAndScroll(editor: Editor?, firstElementTextOffset: Int) {
         editor?.apply {
-            println("Element position: $firstElementTextOffset")
+            LOG.debug("Element position: $firstElementTextOffset")
             caretModel.primaryCaret.moveToOffset(firstElementTextOffset)
             scrollingModel.scrollToCaret(ScrollType.CENTER)
         }

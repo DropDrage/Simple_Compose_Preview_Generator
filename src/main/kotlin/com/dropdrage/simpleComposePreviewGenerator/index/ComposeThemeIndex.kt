@@ -1,8 +1,8 @@
 package com.dropdrage.simpleComposePreviewGenerator.index
 
 import androidx.compose.ui.util.fastForEach
-import com.dropdrage.simpleComposePreviewGenerator.utils.extension.descriptorWithVisibility
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isAccessibleFrom
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.descriptorWithVisibility
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.DataIndexer

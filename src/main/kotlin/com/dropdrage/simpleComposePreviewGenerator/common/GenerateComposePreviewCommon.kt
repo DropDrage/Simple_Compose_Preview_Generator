@@ -2,13 +2,14 @@ package com.dropdrage.simpleComposePreviewGenerator.common
 
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.index.ComposeThemeIndex
-import com.dropdrage.simpleComposePreviewGenerator.utils.extension.descriptorWithVisibility
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.descriptorWithVisibility
 import com.dropdrage.simpleComposePreviewGenerator.utils.generator.PreviewArgumentsListGenerator
 import com.dropdrage.simpleComposePreviewGenerator.utils.generator.PreviewFunctionGenerator
 import com.intellij.codeInsight.template.Template
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import kotlin.time.measureTime
 
 internal class GenerateComposePreviewCommon { //ToDo to object?
 
@@ -27,10 +28,9 @@ internal class GenerateComposePreviewCommon { //ToDo to object?
 
     private fun buildPreviewFunctionArgumentsString(functionElement: KtNamedFunction): String {
         val argumentsList: String
-        val argsTime = measureTime {
+        LOG.logTimeOnDebug("Args string") {
             argumentsList = previewArgumentsListGenerator.buildCallParametersString(functionElement.valueParameters)
         }
-        println("Args time: $argsTime")
         return argumentsList
     }
 
@@ -57,15 +57,19 @@ internal class GenerateComposePreviewCommon { //ToDo to object?
         project: Project,
     ): Template {
         val argumentsList: Template
-        val argsTime = measureTime {
+        LOG.logTimeOnDebug("Args template") {
             argumentsList = previewArgumentsListGenerator.buildCallParametersTemplate(
                 functionElement.valueParameters,
                 project,
             )
         }
-        println("Args time: $argsTime")
 
         return argumentsList
+    }
+
+
+    companion object {
+        private val LOG = logger<GenerateComposePreviewCommon>()
     }
 
 }
