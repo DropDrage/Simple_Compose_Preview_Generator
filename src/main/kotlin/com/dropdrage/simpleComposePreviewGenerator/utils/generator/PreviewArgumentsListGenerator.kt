@@ -15,6 +15,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.nj2k.types.typeFqName
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.parameterIndex
@@ -24,6 +25,8 @@ internal class PreviewArgumentsListGenerator {
 
     private val shouldGenerateDefaults: Boolean
         get() = ConfigService.config.isDefaultsGenerationEnabled
+    private val isSkipViewModel: Boolean
+        get() = ConfigService.config.isSkipViewModel
     private val isModifierGenerationEnabled: Boolean
         get() = ConfigService.config.isModifierGenerationEnabled
     private val isTrailingCommaEnabled: Boolean
@@ -32,11 +35,16 @@ internal class PreviewArgumentsListGenerator {
 
     fun buildCallParametersString(parameters: List<KtParameter>?): String = buildString {
         val shouldGenerateDefaults = shouldGenerateDefaults
+        val isSkipViewModel = isSkipViewModel
         val isModifierGenerationEnabled = isModifierGenerationEnabled
         parameters?.fastForEach { parameter ->
-            if (parameter.defaultValue == null
-                || shouldGenerateDefaults
-                || isModifierGenerationEnabled && parameter.typeFqName() == FqNames.Compose.MODIFIER
+            if (
+                shouldBeParameterAdded(
+                    parameter,
+                    shouldGenerateDefaults,
+                    isSkipViewModel,
+                    isModifierGenerationEnabled,
+                )
             ) {
                 if (isNotEmpty()) { // avoids redundant "," before defaults
                     append(CALL_ARGUMENTS_SEPARATOR)
@@ -64,14 +72,19 @@ internal class PreviewArgumentsListGenerator {
             addTextSegment("\n")
 
             val shouldGenerateDefaults = shouldGenerateDefaults
+            val isSkipViewModel = isSkipViewModel
             val isModifierGenerationEnabled = isModifierGenerationEnabled
             var hasAnyParameterAdded = false
             val indent = getIndent(project)
             val autocompleteExpression = MacroCallNode(CompleteSmartMacro())
             parameters?.fastForEach { parameter ->
-                if (parameter.defaultValue == null
-                    || shouldGenerateDefaults
-                    || isModifierGenerationEnabled && parameter.typeFqName() == FqNames.Compose.MODIFIER
+                if (
+                    shouldBeParameterAdded(
+                        parameter,
+                        shouldGenerateDefaults,
+                        isSkipViewModel,
+                        isModifierGenerationEnabled,
+                    )
                 ) {
                     if (hasAnyParameterAdded) { // avoids redundant "," before defaults
                         addTextSegment(CALL_ARGUMENTS_SEPARATOR)
@@ -103,6 +116,23 @@ internal class PreviewArgumentsListGenerator {
         return if (indentOptions.USE_TAB_CHARACTER) "\t"
         else " ".repeat(indentOptions.INDENT_SIZE)
     }
+
+    private fun shouldBeParameterAdded(
+        parameter: KtParameter,
+        shouldGenerateDefaults: Boolean,
+        isSkipViewModel: Boolean,
+        isModifierGenerationEnabled: Boolean,
+    ): Boolean =
+        parameter.defaultValue == null || run {
+            val typeFqName = parameter.typeFqName()
+            shouldGenerateDefaults && !shouldSkipViewModel(isSkipViewModel, typeFqName)
+                || isModifierGenerationEnabled && typeFqName == FqNames.Compose.MODIFIER
+        }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun shouldSkipViewModel(isSkipViewModel: Boolean, typeFqName: FqName?): Boolean =
+        isSkipViewModel && typeFqName == FqNames.ANDROID_VIEWMODEL
+
 
     companion object {
         private const val CALL_ARGUMENTS_SEPARATOR = "$FUNCTION_ARGUMENTS_SEPARATOR\n"

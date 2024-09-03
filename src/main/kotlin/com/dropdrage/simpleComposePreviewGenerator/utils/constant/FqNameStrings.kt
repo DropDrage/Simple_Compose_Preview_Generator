@@ -12,6 +12,8 @@ internal object FqNameStrings {
 
     const val COMPOSE_MODIFIER = "androidx.compose.ui.Modifier"
 
+    const val ANDROID_VIEWMODEL = "androidx.lifecycle.ViewModel"
+
     const val CHAR_SEQUENCE = "kotlin.CharSequence"
 
 }

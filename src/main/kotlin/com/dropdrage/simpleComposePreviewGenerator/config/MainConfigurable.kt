@@ -10,6 +10,7 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.EnumComboBoxModel
+import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.dsl.builder.*
 import javax.swing.JLabel
@@ -42,7 +43,17 @@ class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
     }
 
     private fun Panel.generationSimplificationSettings() = group("Arguments generation") {
-        checkBoxRow("Generate function params with default values", ConfigService.config::isDefaultsGenerationEnabled)
+        lateinit var generateDefaultsCheckBox: Cell<JBCheckBox>
+        row {
+            generateDefaultsCheckBox = checkBox(
+                "Generate function params with default values",
+                ConfigService.config::isDefaultsGenerationEnabled,
+            )
+        }
+        indent {
+            checkBoxRow("Skip ViewModel", ConfigService.config::isSkipViewModel)
+                .enabledIf(generateDefaultsCheckBox.selected)
+        }
         checkBoxRow("Generate Modifier", ConfigService.config::isModifierGenerationEnabled).bottomGap(BottomGap.SMALL)
 
         checkBoxRow("Assign null value for nullable arguments", ConfigService.config::fillNullableWithNulls)

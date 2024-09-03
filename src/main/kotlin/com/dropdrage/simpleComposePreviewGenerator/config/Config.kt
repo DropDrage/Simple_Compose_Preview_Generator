@@ -16,8 +16,9 @@ class Config : BaseState() {
 
     //region Generation
     var isDefaultsGenerationEnabled by property(false)
+    var isSkipViewModel by property(true)
     var isModifierGenerationEnabled by property(true)
-    var fillNullableWithNulls by property(false)
+    var isFillNullableWithNullsEnabled by property(false)
     var isThemeEnabled by property(true)
 
     var isEmptyBuilderForListEnabled by property(false)
