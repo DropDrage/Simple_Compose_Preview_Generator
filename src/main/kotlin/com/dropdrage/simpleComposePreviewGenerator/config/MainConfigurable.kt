@@ -56,7 +56,7 @@ class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
         }
         checkBoxRow("Generate Modifier", ConfigService.config::isModifierGenerationEnabled).bottomGap(BottomGap.SMALL)
 
-        checkBoxRow("Assign null value for nullable arguments", ConfigService.config::fillNullableWithNulls)
+        checkBoxRow("Assign null value for nullable arguments", ConfigService.config::isFillNullableWithNullsEnabled)
         checkBoxRow("Add theme", ConfigService.config::isThemeEnabled)
             .contextHelp(
                 "Theme file must end with \"Theme\" suffix.\n" +

@@ -41,7 +41,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     var USE_FIRST_ENUM_SETTING = true // ToDo sounds useless
 
     private val useNull: Boolean
-        get() = ConfigService.config.fillNullableWithNulls
+        get() = ConfigService.config.isFillNullableWithNullsEnabled
     var useNullForPrimitives = true
 
     //endregion
