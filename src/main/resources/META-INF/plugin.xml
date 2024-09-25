@@ -39,8 +39,9 @@
         <intentionAction>
             <language>kotlin</language>
             <className>com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreview</className>
-            <category>Android</category>
+            <category>Jetpack Compose</category>
         </intentionAction>
+
         <fileBasedIndex implementation="com.dropdrage.simpleComposePreviewGenerator.index.ComposeThemeIndex"/>
     </extensions>
     <actions>

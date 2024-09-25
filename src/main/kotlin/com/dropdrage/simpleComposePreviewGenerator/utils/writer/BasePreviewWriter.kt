@@ -9,12 +9,12 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 
-internal abstract class BasePsiElementsWriter(
+internal abstract class BasePreviewWriter(
     private val LOG: Logger,
-    private val isNewLineAfterAllPreviewsIgnored: Boolean,
+    private val isNewLineAfterAllPreviewsRequired: Boolean,
 ) {
 
-    fun addElementsToFile(
+    fun addPreviewsToFile(
         file: KtFile,
         psiElements: List<FunctionWithPreview>,
         newLine: PsiElement,
@@ -34,7 +34,7 @@ internal abstract class BasePsiElementsWriter(
         for (i in 1 until psiElements.size) {
             file.addPreview(psiElements[i])
         }
-        if (isNewLineAfterAllPreviewsIgnored) {
+        if (isNewLineAfterAllPreviewsRequired) {
             file.add(newLine)
         }
 

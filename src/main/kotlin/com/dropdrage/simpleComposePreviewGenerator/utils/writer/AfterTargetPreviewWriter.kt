@@ -4,14 +4,14 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.psi.KtFile
 
-internal class EndFilePsiElementsWriter : BasePsiElementsWriter(LOG, false) {
+internal class AfterTargetPreviewWriter : BasePreviewWriter(LOG, false) {
 
     override fun KtFile.addPreview(functionWithPreview: FunctionWithPreview): PsiElement =
-        add(functionWithPreview.preview)
+        addAfter(functionWithPreview.preview, functionWithPreview.target)
 
 
     companion object {
-        private val LOG = logger<EndFilePsiElementsWriter>()
+        private val LOG = logger<AfterTargetPreviewWriter>()
     }
 
 }

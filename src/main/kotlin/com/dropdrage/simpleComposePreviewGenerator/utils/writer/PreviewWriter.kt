@@ -3,6 +3,7 @@ package com.dropdrage.simpleComposePreviewGenerator.utils.writer
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewLocation
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositionChangeListener
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
 import com.intellij.codeInsight.template.Template
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.application.WriteAction
@@ -16,7 +17,6 @@ import org.jetbrains.kotlin.idea.codeinsight.utils.commitAndUnblockDocument
 import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
 import org.jetbrains.kotlin.psi.KtFile
-import kotlin.time.measureTime
 
 internal object PreviewWriter : PreviewPositionChangeListener {
 
@@ -25,13 +25,13 @@ internal object PreviewWriter : PreviewPositionChangeListener {
     private val LOG = thisLogger()
 
     private var currentWriterType: PreviewLocation = ConfigService.config.previewLocation
-    private var writer: BasePsiElementsWriter
+    private var writer: BasePreviewWriter
 
 
     init {
         writer = when (currentWriterType) {
-            PreviewLocation.FILE_END -> EndFilePsiElementsWriter()
-            PreviewLocation.AFTER_FUNCTION -> AfterTargetPsiElementsWriter()
+            PreviewLocation.FILE_END -> EndFilePreviewWriter()
+            PreviewLocation.AFTER_FUNCTION -> AfterTargetPreviewWriter()
         }
         PreviewPositionChangeListener.subscribe(this)
     }
@@ -40,8 +40,8 @@ internal object PreviewWriter : PreviewPositionChangeListener {
         val previewLocation = ConfigService.config.previewLocation
         if (currentWriterType != previewLocation) {
             writer = when (previewLocation) {
-                PreviewLocation.FILE_END -> EndFilePsiElementsWriter()
-                PreviewLocation.AFTER_FUNCTION -> AfterTargetPsiElementsWriter()
+                PreviewLocation.FILE_END -> EndFilePreviewWriter()
+                PreviewLocation.AFTER_FUNCTION -> AfterTargetPreviewWriter()
             }
         }
     }
@@ -86,24 +86,19 @@ internal object PreviewWriter : PreviewPositionChangeListener {
             val codeStyleManager = CodeStyleManager.getInstance(project)
 
             val argumentsStartPosition: Int
-            val addTime = measureTime {
-                argumentsStartPosition = writer.addElementsToFile(
+            LOG.logTimeOnDebug("Add") {
+                argumentsStartPosition = writer.addPreviewsToFile(
                     file,
                     functionWithPreviews,
                     newLine,
                     shouldMoveToArgumentsListStart,
                 )
             }
-            LOG.debug("Add time: $addTime")
             moveCaretAndScroll(editor, argumentsStartPosition)
 
-            val commitTime = measureTime { file.commitAndUnblockDocument() }
-            LOG.debug("Commit time: $commitTime")
-
-            val shortenTime = measureTime { shortenReferences.process(file) }
-            LOG.debug("Shorten time: $shortenTime")
-
-            val reformatTime = measureTime {
+            LOG.logTimeOnDebug("Commit") { file.commitAndUnblockDocument() }
+            LOG.logTimeOnDebug("Shorten") { shortenReferences.process(file) }
+            LOG.logTimeOnDebug("Reformat") {
                 //                val changedRangesInfo = VcsFacade.getInstance().getChangedRangesInfo(file)
                 //                if (changedRangesInfo != null) {
                 //                    LOG.debug("Reformat chages")
@@ -113,7 +108,6 @@ internal object PreviewWriter : PreviewPositionChangeListener {
                 codeStyleManager.reformat(file)
                 //                }
             } // ToDo file or psi?
-            LOG.debug("Reformat time: $reformatTime")
 
             afterWriteAction?.invoke()
         }

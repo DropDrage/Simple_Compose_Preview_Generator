@@ -15,6 +15,7 @@ import com.intellij.util.io.EnumeratorStringDescriptor
 import com.intellij.util.io.KeyDescriptor
 import com.intellij.util.io.externalizer.StringCollectionExternalizer
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
+import org.jetbrains.kotlin.idea.base.projectStructure.scope.KotlinSourceFilterScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelFunctionFqnNameIndex
 
 internal typealias ThemeIndexValue = Collection<String> // ToDo Set<>
@@ -45,10 +46,12 @@ internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexVal
             project: Project,
             functionDeclarationDescriptor: DeclarationDescriptorWithVisibility,
         ): String? {
+            val kotlinSourcesScope =
+                KotlinSourceFilterScope.projectSources(GlobalSearchScope.projectScope(project), project)
             val allThemes = FileBasedIndex.getInstance().getValues(
                 NAME,
                 ComposeThemeIndexer.THEMES_KEY,
-                GlobalSearchScope.projectScope(project),
+                kotlinSourcesScope,
             )
 
             allThemes.fastForEach { fileThemes ->
@@ -56,7 +59,7 @@ internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexVal
                     val themeFunction = KotlinTopLevelFunctionFqnNameIndex.get(
                         themeFqString,
                         project,
-                        GlobalSearchScope.projectScope(project),
+                        kotlinSourcesScope,
                     ).firstOrNull()
 
                     if (themeFunction?.descriptorWithVisibility?.isAccessibleFrom(functionDeclarationDescriptor) == true) {
