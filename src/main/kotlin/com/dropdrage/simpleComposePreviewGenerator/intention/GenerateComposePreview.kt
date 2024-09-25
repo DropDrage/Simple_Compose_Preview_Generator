@@ -6,86 +6,53 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.createOnl
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.FunctionWithPreview
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.PreviewWriter
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.idea.codeinsight.api.classic.intentions.SelfTargetingOffsetIndependentIntention
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.toml.lang.psi.ext.elementType
 
-internal class GenerateComposePreview : PsiElementBaseIntentionAction() {
+internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<KtNamedFunction>(
+    KtNamedFunction::class.java,
+    { "|||| Generate Preview" },
+    { "Generate Preview" },
+) {
 
     private val previewCommon = GenerateComposePreviewCommon()
 
 
-    override fun isAvailable(project: Project, editor: Editor?, element: PsiElement): Boolean {
-        val isComposable: Boolean
-        LOG.logTimeOnDebug("//// isComposable") {
-            isComposable = getFunctionOrNull(element)?.isTargetForComposePreview() ?: return false
+    override fun applyTo(targetFunction: KtNamedFunction, editor: Editor?) = LOG.logTimeOnDebug("All") {
+        val containingKtFile = targetFunction.containingKtFile
+        if (!containingKtFile.isPhysical) return@logTimeOnDebug
+
+        val project = targetFunction.project
+        val previewArgumentsTemplate = previewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
+        val previewFunction = previewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
+        val preview: KtElement
+        val newLine: PsiElement
+        LOG.logTimeOnDebug("Psi") {
+            val psiFactory = KtPsiFactory(project)
+            preview = psiFactory.createFunction(previewFunction)
+            newLine = psiFactory.createOnlyNewLine()
         }
-        LOG.debug("//// isComposable: $isComposable")
-        return isComposable
-    }
+        LOG.debug(lazyMessage = { preview.text })
 
-    override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
-        LOG.logTimeOnDebug("All") {
-            val targetFunction = getFunctionOrNull(element) ?: error("${element.text} is not a Kotlin function")
-
-            val previewArgumentsTemplate = previewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
-            val previewFunction = previewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
-            val preview: KtElement
-            val newLine: PsiElement
-            LOG.logTimeOnDebug("Psi") {
-                val psiFactory = KtPsiFactory(project)
-                preview = psiFactory.createFunction(previewFunction)
-                newLine = psiFactory.createOnlyNewLine()
-            }
-            LOG.debug(preview.text)
-
-            val containingKtFile = targetFunction.containingKtFile
-            if (containingKtFile.isPhysical) {
-                LOG.logTimeOnDebug("Write") {
-                    PreviewWriter.write(
-                        project,
-                        editor,
-                        containingKtFile,
-                        FunctionWithPreview(targetFunction, preview),
-                        newLine,
-                        previewArgumentsTemplate,
-                    )
-                }
-            }
+        LOG.logTimeOnDebug("Write") {
+            PreviewWriter.write(
+                project,
+                editor,
+                containingKtFile,
+                FunctionWithPreview(targetFunction, preview),
+                newLine,
+                previewArgumentsTemplate,
+            )
         }
     }
 
-    private fun getFunctionOrNull(psiElement: PsiElement): KtNamedFunction? =
-        if (psiElement is KtNamedFunction) psiElement
-        else {
-            val parent = psiElement.parent
-            val elementType = psiElement.elementType
-
-            if (elementType == KtTokens.IDENTIFIER && parent is KtNamedFunction) parent
-            else getFunctionOnParenthesisOrNull(elementType, parent)
-        }
-
-    private fun getFunctionOnParenthesisOrNull(
-        elementType: IElementType,
-        parent: PsiElement,
-    ): KtNamedFunction? = if (elementType == KtTokens.LPAR) {
-        val prevSibling = parent.parent
-        if (prevSibling is KtNamedFunction) prevSibling
-        else prevSibling.parent as? KtNamedFunction
-    } else null
-
-
-    override fun getFamilyName(): String = text
-
-    override fun getText(): String = "//////// Generate Compose preview"
+    override fun isApplicableTo(element: KtNamedFunction): Boolean = element.isTargetForComposePreview()
 
 
     companion object {
