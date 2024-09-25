@@ -117,7 +117,7 @@ internal class PreviewArgumentsListGenerator {
         else " ".repeat(indentOptions.INDENT_SIZE)
     }
 
-    private fun shouldBeParameterAdded(
+    fun shouldBeParameterAdded(
         parameter: KtParameter,
         shouldGenerateDefaults: Boolean,
         isSkipViewModel: Boolean,

@@ -38,6 +38,12 @@
 
         <intentionAction>
             <language>kotlin</language>
+            <className>com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreviewModCommand
+            </className>
+            <category>Jetpack Compose</category>
+        </intentionAction>
+        <intentionAction>
+            <language>kotlin</language>
             <className>com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreview</className>
             <category>Android</category>
         </intentionAction>
@@ -50,5 +56,10 @@
             <add-to-group group-id="GenerateGroup" anchor="first"/>
             <!--            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt P"/>-->
         </action>
+        <!--        <action id="com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreviewAction"-->
+        <!--                class=""-->
+        <!--                text="-&#45;&#45;&#45;&#45;&#45;&#45; Generate Compose Preview Action">-->
+        <!--            <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
+        <!--        </action>-->
     </actions>
 </idea-plugin>

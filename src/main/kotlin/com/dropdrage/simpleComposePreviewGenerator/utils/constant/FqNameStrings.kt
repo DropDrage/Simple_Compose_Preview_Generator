@@ -4,6 +4,8 @@ internal object FqNameStrings {
 
     object Annotation {
         const val COMPOSE_PREVIEW_ANNOTATION = "androidx.compose.ui.tooling.preview.${ShortNames.Annotation.PREVIEW}"
+
+        //        const val COMPOSE_PREVIEW_ANNOTATION = ShortNames.Annotation.PREVIEW
         const val COMPOSE_ANNOTATION = "androidx.compose.runtime.${ShortNames.Annotation.COMPOSABLE}"
     }
 

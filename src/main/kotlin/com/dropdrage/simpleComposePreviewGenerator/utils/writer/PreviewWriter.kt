@@ -15,8 +15,8 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.kotlin.idea.codeinsight.utils.commitAndUnblockDocument
 import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
+import org.jetbrains.kotlin.idea.util.application.isDispatchThread
 import org.jetbrains.kotlin.psi.KtFile
-import kotlin.time.measureTime
 
 internal object PreviewWriter : PreviewPositionChangeListener {
 
@@ -81,7 +81,9 @@ internal object PreviewWriter : PreviewPositionChangeListener {
         shouldMoveToArgumentsListStart: Boolean,
         afterWriteAction: (() -> Unit)? = null,
     ) {
+        LOG.debug("Out Write")
         val writeLambda: () -> Unit = {
+            LOG.debug("Start writing")
             val shortenReferences = ShortenReferences.DEFAULT
             val codeStyleManager = CodeStyleManager.getInstance(project)
 
@@ -110,6 +112,7 @@ internal object PreviewWriter : PreviewPositionChangeListener {
                 //                    codeStyleManager.reformatChanges(file, changedRangesInfo,)
                 //                } else {
                 //                    LOG.debug("Reformat")
+//                file.reformat(0, 10)
                 codeStyleManager.reformat(file)
                 //                }
             } // ToDo file or psi?
@@ -119,9 +122,14 @@ internal object PreviewWriter : PreviewPositionChangeListener {
         }
 
         if (isCommandRequired) {
+            LOG.debug("Command")
             project.executeWriteCommand(WRITE_COMPOSE_PREVIEW_COMMAND, writeLambda)
         } else {
+            LOG.debug("Action ${isDispatchThread()}")
+//            invokeLater(ModalityState.nonModal()) {
+//                LOG.debug("Action inside ${isDispatchThread()}")
             WriteAction.run<Throwable>(writeLambda)
+//            }
         }
     }
 

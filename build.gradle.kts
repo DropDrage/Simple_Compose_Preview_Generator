@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.*
@@ -102,6 +103,12 @@ intellijPlatform {
 //        token.set(System.getenv("PUBLISH_TOKEN"))
 //    }
 //}
+
+tasks.named("compileKotlin", KotlinCompilationTask::class.java) {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-receivers")
+    }
+}
 
 private fun getLocalProperty(key: String): String {
     val properties = Properties()
