@@ -20,11 +20,11 @@ internal object PreviewFunctionGenerator {
         append('\n')
 
         if (isPreviewFirstSetting) {
-            appendAnnotation(FqNameStrings.Annotation.COMPOSE_PREVIEW_ANNOTATION)
-            appendAnnotation(FqNameStrings.Annotation.COMPOSE_ANNOTATION)
+            appendAnnotation(FqNameStrings.Compose.Annotation.PREVIEW)
+            appendAnnotation(FqNameStrings.Compose.Annotation.COMPOSABLE)
         } else {
-            appendAnnotation(FqNameStrings.Annotation.COMPOSE_ANNOTATION)
-            appendAnnotation(FqNameStrings.Annotation.COMPOSE_PREVIEW_ANNOTATION)
+            appendAnnotation(FqNameStrings.Compose.Annotation.COMPOSABLE)
+            appendAnnotation(FqNameStrings.Compose.Annotation.PREVIEW)
         }
         append("private fun ").append(functionName).append("Preview() ")
         val isExpressionBody = theme != null && isPreviewHasExpressionBody

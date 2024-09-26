@@ -14,25 +14,29 @@ internal abstract class BasePreviewWriter(
     private val isNewLineAfterAllPreviewsRequired: Boolean,
 ) {
 
+    /**
+     * @return if [isArgumentsListStartOffsetRequired] arguments list start offset,
+     * otherwise - first argument value offset
+     */
     fun addPreviewsToFile(
         file: KtFile,
-        psiElements: List<FunctionWithPreview>,
+        functionWithPreviews: List<FunctionWithPreview>,
         newLine: PsiElement,
-        shouldMoveToArgumentsListStart: Boolean,
+        isArgumentsListStartOffsetRequired: Boolean,
     ): Int {
         val firstElementOffset: Int =
-            if (psiElements.isNotEmpty()) {
-                val firstPreview = psiElements.first()
+            if (functionWithPreviews.isNotEmpty()) {
+                val firstPreview = functionWithPreviews.first()
                 val addedPreview = file.addPreview(firstPreview)
-                if (shouldMoveToArgumentsListStart) {
+                if (isArgumentsListStartOffsetRequired) {
                     addedPreview.getArgumentsListStartOffset(firstPreview.target)
                 } else {
                     addedPreview.getFirstArgumentValueOffset(firstPreview.target)
                 }
             } else error("Preview elements required")
 
-        for (i in 1 until psiElements.size) {
-            file.addPreview(psiElements[i])
+        for (i in 1 until functionWithPreviews.size) {
+            file.addPreview(functionWithPreviews[i])
         }
         if (isNewLineAfterAllPreviewsRequired) {
             file.add(newLine)

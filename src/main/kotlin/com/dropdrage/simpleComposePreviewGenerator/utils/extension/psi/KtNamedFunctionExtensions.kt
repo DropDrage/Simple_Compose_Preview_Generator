@@ -15,7 +15,7 @@ internal fun KtNamedFunction.isTargetForComposePreview(): Boolean {
     for (annotation in annotationEntries) {
         if (!isComposableFunction && annotation.isComposableAnnotation()) {
             isComposableFunction = true
-        } else if (annotation.fqNameMatches(FqNameStrings.Annotation.COMPOSE_PREVIEW_ANNOTATION)) {
+        } else if (annotation.fqNameMatches(FqNameStrings.Compose.Annotation.PREVIEW)) {
             KtNamedFunctionExtensions.LOG.debug("//// return false")
             return false
         }
@@ -26,7 +26,7 @@ internal fun KtNamedFunction.isTargetForComposePreview(): Boolean {
 }
 
 internal inline fun KtNamedFunction.isComposePreviewFunction(): Boolean =
-    hasAnnotation(ClassIds.Annotation.COMPOSE_PREVIEW)
+    hasAnnotation(ClassIds.Annotation.Compose.PREVIEW)
 
 internal inline val KtNamedFunction.fqNameString: String
     get() = fqName!!.asString()

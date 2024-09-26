@@ -5,6 +5,8 @@ import org.jetbrains.kotlin.name.Name
 
 internal object ClassIds {
     object Annotation {
-        val COMPOSE_PREVIEW = ClassId(Packages.COMPOSE_PREVIEW, Name.identifier(ShortNames.Annotation.PREVIEW))
+        object Compose {
+            val PREVIEW = ClassId(Packages.Compose.PREVIEW, Name.identifier(ShortNames.Compose.Annotation.PREVIEW))
+        }
     }
 }

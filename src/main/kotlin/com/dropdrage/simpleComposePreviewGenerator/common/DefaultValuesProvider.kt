@@ -4,7 +4,6 @@ import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewGenerationSettingsChangeListener
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNCTION_ARGUMENTS_SEPARATOR
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings.COMPOSE_MODIFIER
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.classNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameSafeString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameString
@@ -57,6 +56,8 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private const val KOTLIN_COLLECTIONS_LIST = "$KOTLIN_COLLECTIONS_PACKAGE.List"
     private const val KOTLIN_COLLECTIONS_SET = "$KOTLIN_COLLECTIONS_PACKAGE.Set"
     private const val KOTLIN_COLLECTIONS_MAP = "$KOTLIN_COLLECTIONS_PACKAGE.Map"
+
+    private const val KOTLIN_SEQUENCES_SEQUENCE = "$KOTLIN_SEQUENCES_PACKAGE.Sequence"
 
     private const val EMPTY_ARRAY = "emptyArray()"
     private const val ARRAY_OF = "arrayOf()"
@@ -137,6 +138,40 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     }
 
 
+    override fun onChanged() {
+        LOG.debug("Changed listener")
+        addPossiblyEmptyBuilders()
+    }
+
+    private fun addPossiblyEmptyBuilders() {
+        supportedIterableLists.apply {
+            if (ConfigService.config.isEmptyBuilderForListEnabled) {
+                put(KOTLIN_COLLECTIONS_ITERABLE, EMPTY_LIST)
+                put(KOTLIN_COLLECTIONS_COLLECTION, EMPTY_LIST)
+                put(KOTLIN_COLLECTIONS_LIST, EMPTY_LIST)
+            } else {
+                put(KOTLIN_COLLECTIONS_ITERABLE, LIST_OF)
+                put(KOTLIN_COLLECTIONS_COLLECTION, LIST_OF)
+                put(KOTLIN_COLLECTIONS_LIST, LIST_OF)
+            }
+        }
+        supportedSets.apply {
+            if (ConfigService.config.isEmptyBuilderForSetEnabled) {
+                put(KOTLIN_COLLECTIONS_SET, EMPTY_SET)
+            } else {
+                put(KOTLIN_COLLECTIONS_SET, SET_OF)
+            }
+        }
+        supportedMaps.apply {
+            if (ConfigService.config.isEmptyBuilderForMapEnabled) {
+                put(KOTLIN_COLLECTIONS_MAP, EMPTY_MAP)
+            } else {
+                put(KOTLIN_COLLECTIONS_MAP, MAP_OF)
+            }
+        }
+    }
+
+
     fun getDefaultForType(parameterValueType: KotlinType): String = when {
         useNullForPrimitives && parameterValueType.isNullable() -> "null"
 
@@ -164,13 +199,13 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         parameterValueType.isSetHasKotlinBuilder() -> buildSetWithKotlinBuilder(parameterValueType)
         parameterValueType.isMapHasKotlinBuilder() -> buildMapWithKotlinBuilder(parameterValueType)
         parameterValueType.isImmutableHasKotlinBuilder() -> buildImmutablesWithKotlinBuilder(parameterValueType)
-        parameterValueType.matchesFqName("$KOTLIN_SEQUENCES_PACKAGE.Sequence") ->
+        parameterValueType.matchesFqName(KOTLIN_SEQUENCES_SEQUENCE) ->
             if (USE_EMPTY_SEQUENCE_SETTING) EMPTY_SEQUENCE
             else SEQUENCE_OF // sequence {}, emptySequence(), generateSequence { }
 
         parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability -> buildLambdaDefault(parameterValueType)
 
-        parameterValueType.matchesFqName(COMPOSE_MODIFIER) -> COMPOSE_MODIFIER
+        parameterValueType.matchesFqName(FqNameStrings.Compose.MODIFIER) -> FqNameStrings.Compose.MODIFIER
 //        parameterValueType.isAbstract() || parameterValueType.isInterface() -> "/* TODO Unknown abstract element */"
 
         else -> "" //buildCustomClass(parameterValueType, functionDeclarationDescriptor)
@@ -245,39 +280,6 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         }
 
         append('}')
-    }
-
-    override fun onChanged() {
-        LOG.debug("Changed listener")
-        addPossiblyEmptyBuilders()
-    }
-
-    private fun addPossiblyEmptyBuilders() {
-        supportedIterableLists.apply {
-            if (ConfigService.config.isEmptyBuilderForListEnabled) {
-                put(KOTLIN_COLLECTIONS_ITERABLE, EMPTY_LIST)
-                put(KOTLIN_COLLECTIONS_COLLECTION, EMPTY_LIST)
-                put(KOTLIN_COLLECTIONS_LIST, EMPTY_LIST)
-            } else {
-                put(KOTLIN_COLLECTIONS_ITERABLE, LIST_OF)
-                put(KOTLIN_COLLECTIONS_COLLECTION, LIST_OF)
-                put(KOTLIN_COLLECTIONS_LIST, LIST_OF)
-            }
-        }
-        supportedSets.apply {
-            if (ConfigService.config.isEmptyBuilderForSetEnabled) {
-                put(KOTLIN_COLLECTIONS_SET, EMPTY_SET)
-            } else {
-                put(KOTLIN_COLLECTIONS_SET, SET_OF)
-            }
-        }
-        supportedMaps.apply {
-            if (ConfigService.config.isEmptyBuilderForMapEnabled) {
-                put(KOTLIN_COLLECTIONS_MAP, EMPTY_MAP)
-            } else {
-                put(KOTLIN_COLLECTIONS_MAP, MAP_OF)
-            }
-        }
     }
 
 }

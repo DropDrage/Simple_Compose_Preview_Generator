@@ -24,6 +24,8 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
     private val previewCommon = GenerateComposePreviewCommon()
 
 
+    override fun isApplicableTo(element: KtNamedFunction): Boolean = element.isTargetForComposePreview()
+
     override fun applyTo(targetFunction: KtNamedFunction, editor: Editor?) = LOG.logTimeOnDebug("All") {
         val containingKtFile = targetFunction.containingKtFile
         if (!containingKtFile.isPhysical) return@logTimeOnDebug
@@ -51,8 +53,6 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
             )
         }
     }
-
-    override fun isApplicableTo(element: KtNamedFunction): Boolean = element.isTargetForComposePreview()
 
 
     companion object {

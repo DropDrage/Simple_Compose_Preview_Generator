@@ -7,6 +7,7 @@ object FqNames {
     val ANDROID_VIEWMODEL = FqName(FqNameStrings.ANDROID_VIEWMODEL)
 
     object Compose {
-        val MODIFIER = FqName(FqNameStrings.COMPOSE_MODIFIER)
+        val MODIFIER = FqName(FqNameStrings.Compose.MODIFIER)
     }
+
 }

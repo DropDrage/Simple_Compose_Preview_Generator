@@ -51,15 +51,16 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
         private fun KtNamedFunction.isComposableTheme(): Boolean {
             return name?.endsWith(THEMES_KEY) == true
                 && canBeComposableTheme(annotationEntries)
-                && anyDescendantOfType<KtCallExpression> { it.callName() == ShortNames.Function.MATERIAL_THEME }
+                && anyDescendantOfType<KtCallExpression> { it.callName() == ShortNames.Compose.Function.MATERIAL_THEME }
         }
 
         private fun canBeComposableTheme(annotationEntries: List<KtAnnotationEntry>): Boolean {
             var isComposableFunction = false
             for (annotation in annotationEntries) {
-                if (!isComposableFunction && annotation.shortNameStringSafe == ShortNames.Annotation.COMPOSABLE) {
+                val annotationShortName = annotation.shortNameStringSafe
+                if (!isComposableFunction && annotationShortName == ShortNames.Compose.Annotation.COMPOSABLE) {
                     isComposableFunction = true
-                } else if (annotation.shortNameStringSafe == ShortNames.Annotation.PREVIEW) {
+                } else if (annotationShortName == ShortNames.Compose.Annotation.PREVIEW) {
                     LOG.debug("//// return false")
                     return false
                 }
