@@ -135,7 +135,7 @@ internal class PreviewArgumentsListGenerator {
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun shouldSkipViewModel(isSkipViewModel: Boolean, typeFqName: FqName?): Boolean =
-        isSkipViewModel && typeFqName == FqNames.ANDROID_VIEWMODEL
+        isSkipViewModel && typeFqName == FqNames.Android.VIEWMODEL
 
 
     companion object {

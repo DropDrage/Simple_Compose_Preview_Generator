@@ -2,12 +2,14 @@ package com.dropdrage.simpleComposePreviewGenerator.utils.constant
 
 import org.jetbrains.kotlin.name.FqName
 
-object FqNames {
-
-    val ANDROID_VIEWMODEL = FqName(FqNameStrings.ANDROID_VIEWMODEL)
+internal object FqNames {
 
     object Compose {
         val MODIFIER = FqName(FqNameStrings.Compose.MODIFIER)
+    }
+
+    object Android {
+        val VIEWMODEL = FqName(FqNameStrings.Android.VIEWMODEL)
     }
 
 }
