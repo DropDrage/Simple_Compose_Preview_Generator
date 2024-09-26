@@ -4,6 +4,7 @@ import com.dropdrage.simpleComposePreviewGenerator.common.GenerateComposePreview
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.createOnlyNewLine
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
+import com.dropdrage.simpleComposePreviewGenerator.utils.i18n.SimpleComposePreviewGeneratorBundle.lazyMessage
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.FunctionWithPreview
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.PreviewFunctionToFileWriter
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.PreviewFunctionToPreviewWriter
@@ -21,8 +22,8 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
 
 internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<KtNamedFunction>(
     KtNamedFunction::class.java,
-    { "|||| Generate Preview" },
-    { "Generate Preview" },
+    lazyMessage("intention.generatePreview.text"),
+    lazyMessage("intention.generatePreview.familyName"),
 ) {
 
     private val previewCommon = GenerateComposePreviewCommon()

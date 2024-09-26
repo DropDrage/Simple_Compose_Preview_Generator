@@ -5,6 +5,7 @@ import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewBodyType
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewLocation
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewGenerationSettingsChangePublisher
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositionChangePublisher
+import com.dropdrage.simpleComposePreviewGenerator.utils.i18n.SimpleComposePreviewGeneratorBundle.message
 import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.ComboBox
@@ -19,45 +20,48 @@ import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
 
 @Suppress("NOTHING_TO_INLINE")
-class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
+class MainConfigurable : BoundConfigurable(message("settings.title")) {
 
     override fun createPanel() = panel {
         codeStyleSettings()
         generationSimplificationSettings()
     }
 
-    private fun Panel.codeStyleSettings() = group(title = "Code style") {
+    private fun Panel.codeStyleSettings() = group(title = message("settings.codeStyle.title")) {
         labeledComboBoxRow<FirstAnnotation>(
-            "First annotation: ",
+            message("settings.codeStyle.firstAnnotation.label"),
             ConfigService.config::firstAnnotation.toNullableProperty(),
         )
         labeledComboBoxRow<PreviewBodyType>(
-            "Preview function body type: ",
+            message("settings.codeStyle.previewFunction.bodyType"),
             ConfigService.config::previewBodyType.toNullableProperty(),
         )
         labeledComboBoxRow<PreviewLocation>(
-            "Preview function location: ",
+            message("settings.codeStyle.previewFunction.location"),
             ConfigService.config::previewLocation.toNullableProperty(),
         )
 
-        checkBoxRow("Trailing comma", ConfigService.config::isTrailingCommaEnabled)
+        checkBoxRow(message("settings.codeStyle.trailingComma.label"), ConfigService.config::isTrailingCommaEnabled)
             .topGap(TopGap.SMALL)
     }
 
-    private fun Panel.generationSimplificationSettings() = group("Arguments generation") {
+    private fun Panel.generationSimplificationSettings() = group(message("settings.argumentsGeneration.title")) {
         lateinit var generateDefaultsCheckBox: Cell<JBCheckBox>
         row {
             generateDefaultsCheckBox = checkBox(
-                "Generate function params with default values",
+                message("settings.argumentsGeneration.generateFunctionParamsWithDefaultValues.label"),
                 ConfigService.config::isDefaultsGenerationEnabled,
             )
         }
         indent {
-            checkBoxRow("Skip ViewModel", ConfigService.config::isSkipViewModel)
+            checkBoxRow(
+                message("settings.argumentsGeneration.skipViewModel.label"),
+                ConfigService.config::isSkipViewModel
+            )
                 .enabledIf(generateDefaultsCheckBox.selected)
             row {
                 val modifierGenerationCheckBox = checkBox(
-                    "Generate Modifier",
+                    message("settings.argumentsGeneration.generateModifier.label"),
                     ConfigService.config::isModifierGenerationEnabled,
                 ).enabledIf(generateDefaultsCheckBox.selected.not())
 
@@ -68,28 +72,40 @@ class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
             }
         }
 
-        checkBoxRow("Assign null value for nullable arguments", ConfigService.config::isFillNullableWithNullsEnabled)
-            .topGap(TopGap.SMALL)
-        checkBoxRow("Add theme", ConfigService.config::isThemeEnabled)
-            .contextHelp(
-                "Theme file must end with \"Theme\" suffix.\n" +
-                    "Theme function must have @Composable without @Preview annotation, " +
-                    "name with \"Theme\" suffix and " +
-                    "MaterialTheme call",
-            )
+        checkBoxRow(
+            message("settings.argumentsGeneration.assignNullValueForNullableArguments"),
+            ConfigService.config::isFillNullableWithNullsEnabled,
+        ).topGap(TopGap.SMALL)
+        checkBoxRow(message("settings.argumentsGeneration.addTheme.label"), ConfigService.config::isThemeEnabled)
+            .contextHelp(message("settings.argumentsGeneration.addTheme.tooltip"))
 
-        row { text("Use empty collection builders for") }
+        row { text(message("settings.argumentsGeneration.useEmptyCollectionBuilders.label")) }
             .topGap(TopGap.SMALL)
-            .contextHelp("Such as emptyArray(), emptyList(), emptySet(), emptyMap() and etc.")
+            .contextHelp(message("settings.argumentsGeneration.useEmptyCollectionBuilders.tooltip"))
         indent {
             row {
-                checkBox("Array", ConfigService.config::isEmptyBuilderForArrayEnabled)
-                checkBox("Iterable, Collection, List", ConfigService.config::isEmptyBuilderForListEnabled)
-                checkBox("Sequence", ConfigService.config::isEmptyBuilderForSequenceEnabled)
+                checkBox(
+                    message("settings.argumentsGeneration.useEmptyCollectionBuilders.array"),
+                    ConfigService.config::isEmptyBuilderForArrayEnabled,
+                )
+                checkBox(
+                    message("settings.argumentsGeneration.useEmptyCollectionBuilders.iterableCollectionList"),
+                    ConfigService.config::isEmptyBuilderForListEnabled,
+                )
+                checkBox(
+                    message("settings.argumentsGeneration.useEmptyCollectionBuilders.sequence"),
+                    ConfigService.config::isEmptyBuilderForSequenceEnabled,
+                )
             }.layout(RowLayout.PARENT_GRID)
             row {
-                checkBox("Set", ConfigService.config::isEmptyBuilderForSetEnabled)
-                checkBox("Map", ConfigService.config::isEmptyBuilderForMapEnabled)
+                checkBox(
+                    message("settings.argumentsGeneration.useEmptyCollectionBuilders.set"),
+                    ConfigService.config::isEmptyBuilderForSetEnabled,
+                )
+                checkBox(
+                    message("settings.argumentsGeneration.useEmptyCollectionBuilders.map"),
+                    ConfigService.config::isEmptyBuilderForMapEnabled,
+                )
             }.layout(RowLayout.PARENT_GRID)
         }
 

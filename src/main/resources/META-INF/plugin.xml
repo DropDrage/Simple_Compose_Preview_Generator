@@ -10,6 +10,8 @@
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://github.com/DropDrage">DropDrage</vendor>
 
+    <resource-bundle>messages.SimpleComposePreviewGeneratorBundle</resource-bundle>
+
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
@@ -32,22 +34,22 @@
                 parentId="other"
                 instance="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
                 id="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
-                displayName="Simple Compose Preview Generator"
+                key="settings.title"
                 nonDefaultProject="true"/>
         <applicationService serviceImplementation="com.dropdrage.simpleComposePreviewGenerator.config.ConfigService"/>
 
         <intentionAction>
             <language>kotlin</language>
             <className>com.dropdrage.simpleComposePreviewGenerator.intention.GenerateComposePreview</className>
-            <category>Jetpack Compose</category>
+            <!--suppress PluginXmlCapitalization -->
+            <categoryKey>intention.generatePreview.category</categoryKey>
         </intentionAction>
 
         <fileBasedIndex implementation="com.dropdrage.simpleComposePreviewGenerator.index.ComposeThemeIndex"/>
     </extensions>
     <actions>
-        <action id="com.dropdrage.simpleComposePreviewGenerator.action.GenerateAllComposePreview"
-                class="com.dropdrage.simpleComposePreviewGenerator.action.GenerateAllComposePreview"
-                text="Generate all Compose previews">
+        <action id="generateAllComposePreviews"
+                class="com.dropdrage.simpleComposePreviewGenerator.action.GenerateAllComposePreview">
             <add-to-group group-id="GenerateGroup" anchor="first"/>
             <!--            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt P"/>-->
         </action>
