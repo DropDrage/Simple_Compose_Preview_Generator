@@ -13,6 +13,8 @@ import com.intellij.ui.EnumComboBoxModel
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.dsl.builder.*
+import com.intellij.ui.layout.not
+import com.intellij.ui.layout.selected
 import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
 
@@ -53,10 +55,21 @@ class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
         indent {
             checkBoxRow("Skip ViewModel", ConfigService.config::isSkipViewModel)
                 .enabledIf(generateDefaultsCheckBox.selected)
+            row {
+                val modifierGenerationCheckBox = checkBox(
+                    "Generate Modifier",
+                    ConfigService.config::isModifierGenerationEnabled,
+                ).enabledIf(generateDefaultsCheckBox.selected.not())
+
+                generateDefaultsCheckBox.onChanged {
+                    val isGenerateDefaultsSelected = it.selected.invoke()
+                    modifierGenerationCheckBox.selected(isGenerateDefaultsSelected)
+                }
+            }
         }
-        checkBoxRow("Generate Modifier", ConfigService.config::isModifierGenerationEnabled).bottomGap(BottomGap.SMALL)
 
         checkBoxRow("Assign null value for nullable arguments", ConfigService.config::isFillNullableWithNullsEnabled)
+            .topGap(TopGap.SMALL)
         checkBoxRow("Add theme", ConfigService.config::isThemeEnabled)
             .contextHelp(
                 "Theme file must end with \"Theme\" suffix.\n" +
@@ -65,10 +78,9 @@ class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
                     "MaterialTheme call",
             )
 
-        row {
-            text("Use empty collection builders for")
-            contextHelp("Such as emptyArray(), emptyList(), emptySet(), emptyMap() and etc.")
-        }.topGap(TopGap.SMALL)
+        row { text("Use empty collection builders for") }
+            .topGap(TopGap.SMALL)
+            .contextHelp("Such as emptyArray(), emptyList(), emptySet(), emptyMap() and etc.")
         indent {
             row {
                 checkBox("Array", ConfigService.config::isEmptyBuilderForArrayEnabled)
@@ -101,9 +113,8 @@ class MainConfigurable : BoundConfigurable("Simple Compose Preview Generator") {
         labeledComboBox<T>(title).bindItem(prop = prop)
     }
 
-    private inline fun <reified T> Row.labeledComboBox(title: String): Cell<ComboBox<T>> where T : Enum<T>, T : Titled {
-        return simpleComboBox<T>().label(title)
-    }
+    private inline fun <reified T> Row.labeledComboBox(title: String): Cell<ComboBox<T>> where T : Enum<T>, T : Titled =
+        simpleComboBox<T>().label(title)
 
     private inline fun <reified T> Row.simpleComboBox() where T : Enum<T>, T : Titled = comboBox(
         model = EnumComboBoxModel(T::class.java),
