@@ -14,6 +14,18 @@ internal abstract class BasePreviewWriter(
     private val isNewLineAfterAllPreviewsRequired: Boolean,
 ) {
 
+    fun addPreviewToFileWithoutOffsetReturn(
+        file: KtFile,
+        functionWithPreview: FunctionWithPreview,
+        newLine: PsiElement,
+    ) {
+        file.addPreview(functionWithPreview)
+
+        if (isNewLineAfterAllPreviewsRequired) {
+            file.add(newLine)
+        }
+    }
+
     /**
      * @return if [isArgumentsListStartOffsetRequired] arguments list start offset,
      * otherwise - first argument value offset

@@ -4,6 +4,7 @@ import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewGenerationSettingsChangeListener
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNCTION_ARGUMENTS_SEPARATOR
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ShortNames
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.classNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameSafeString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameString
@@ -172,7 +173,10 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     }
 
 
-    fun getDefaultForType(parameterValueType: KotlinType): String = when {
+    fun getDefaultForType(
+        parameterValueType: KotlinType,
+        defaultsSet: DefaultsSet = DefaultsSet.WITH_FQ,
+    ): String = when {
         useNullForPrimitives && parameterValueType.isNullable() -> "null"
 
 //        parameterValueType.isBoolean() -> booleanProvider.getValue()
@@ -203,9 +207,10 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
             if (USE_EMPTY_SEQUENCE_SETTING) EMPTY_SEQUENCE
             else SEQUENCE_OF // sequence {}, emptySequence(), generateSequence { }
 
-        parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability -> buildLambdaDefault(parameterValueType)
+        parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability ->
+            buildLambdaDefault(parameterValueType, defaultsSet)
 
-        parameterValueType.matchesFqName(FqNameStrings.Compose.MODIFIER) -> FqNameStrings.Compose.MODIFIER
+        parameterValueType.matchesFqName(FqNameStrings.Compose.MODIFIER) -> defaultsSet.modifier
 //        parameterValueType.isAbstract() || parameterValueType.isInterface() -> "/* TODO Unknown abstract element */"
 
         else -> "" //buildCustomClass(parameterValueType, functionDeclarationDescriptor)
@@ -254,7 +259,10 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private inline fun buildImmutablesWithKotlinBuilder(parameterValueType: KotlinType): String =
         supportedKotlinxImmutables[parameterValueType.fqNameString]!!
 
-    private fun buildLambdaDefault(parameterValueType: KotlinType): String = buildString {
+    private fun buildLambdaDefault(
+        parameterValueType: KotlinType,
+        useFullQualifier: DefaultsSet,
+    ): String = buildString {
         append('{')
 
         val arguments = parameterValueType.arguments
@@ -276,10 +284,18 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 
         val returnType = arguments.last().type
         if (!returnType.isUnit()) {
-            append(getDefaultForType(returnType))
+            append(getDefaultForType(returnType, useFullQualifier))
         }
 
         append('}')
+    }
+
+
+    enum class DefaultsSet(
+        val modifier: String,
+    ) {
+        WITH_FQ(FqNameStrings.Compose.MODIFIER),
+        ONLY_NAMES(ShortNames.Compose.MODIFIER),
     }
 
 }

@@ -4,6 +4,7 @@ import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.FirstAnnotation
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewBodyType
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ShortNames
 
 @Suppress("NOTHING_TO_INLINE")
 internal object PreviewFunctionGenerator {
@@ -16,15 +17,20 @@ internal object PreviewFunctionGenerator {
         get() = ConfigService.config.isThemeEnabled
 
 
-    fun generateString(functionName: String, argumentsList: String, theme: String?): String = buildString {
+    fun generateString(
+        annotations: AnnotationsSet,
+        theme: String?,
+        functionName: String,
+        argumentsList: String,
+    ): String = buildString {
         append('\n')
 
         if (isPreviewFirstSetting) {
-            appendAnnotation(FqNameStrings.Compose.Annotation.PREVIEW)
-            appendAnnotation(FqNameStrings.Compose.Annotation.COMPOSABLE)
+            appendAnnotation(annotations.preview)
+            appendAnnotation(annotations.composable)
         } else {
-            appendAnnotation(FqNameStrings.Compose.Annotation.COMPOSABLE)
-            appendAnnotation(FqNameStrings.Compose.Annotation.PREVIEW)
+            appendAnnotation(annotations.composable)
+            appendAnnotation(annotations.preview)
         }
         append("private fun ").append(functionName).append("Preview() ")
         val isExpressionBody = theme != null && isPreviewHasExpressionBody
@@ -48,6 +54,21 @@ internal object PreviewFunctionGenerator {
 
     private inline fun StringBuilder.appendAnnotation(annotation: String) {
         append('@').append(annotation).append('\n')
+    }
+
+
+    enum class AnnotationsSet(
+        val preview: String,
+        val composable: String,
+    ) {
+        WITH_FQ(
+            FqNameStrings.Compose.Annotation.PREVIEW,
+            FqNameStrings.Compose.Annotation.COMPOSABLE,
+        ),
+        ONLY_NAMES(
+            ShortNames.Compose.Annotation.PREVIEW,
+            ShortNames.Compose.Annotation.COMPOSABLE,
+        ),
     }
 
 }

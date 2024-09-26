@@ -7,7 +7,7 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isCompose
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.resolveReferencedPsiElement
 import com.dropdrage.simpleComposePreviewGenerator.utils.writer.FunctionWithPreview
-import com.dropdrage.simpleComposePreviewGenerator.utils.writer.PreviewWriter
+import com.dropdrage.simpleComposePreviewGenerator.utils.writer.PreviewFunctionToFileWriter
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -59,7 +59,7 @@ internal class GenerateAllComposePreview : AnAction() {
 
             val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
             LOG.logTimeOnDebug("/////////////// Write") {
-                PreviewWriter.write(project, editor, ktFile, composePreviews, newLine)
+                PreviewFunctionToFileWriter.write(project, editor, ktFile, composePreviews, newLine)
             }
         }
     }

@@ -41,8 +41,15 @@ internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexVal
 
         private val NAME: ID<String, ThemeIndexValue> = ID.create(ComposeThemeIndex::class.java.name)
 
+        fun findAccessibleThemeName(
+            project: Project,
+            functionDeclarationDescriptor: DeclarationDescriptorWithVisibility,
+        ): String? {
+            val themeFq = findAccessibleThemeFq(project, functionDeclarationDescriptor) ?: return null
+            return themeFq.substringAfterLast('.')
+        }
 
-        fun findAccessibleTheme(
+        fun findAccessibleThemeFq(
             project: Project,
             functionDeclarationDescriptor: DeclarationDescriptorWithVisibility,
         ): String? {

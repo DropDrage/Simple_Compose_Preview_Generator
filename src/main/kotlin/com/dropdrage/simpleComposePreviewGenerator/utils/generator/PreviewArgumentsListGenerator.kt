@@ -1,6 +1,7 @@
 package com.dropdrage.simpleComposePreviewGenerator.utils.generator
 
 import androidx.compose.ui.util.fastForEach
+import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider
 import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider.getDefaultForType
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNCTION_ARGUMENTS_SEPARATOR
@@ -33,7 +34,10 @@ internal class PreviewArgumentsListGenerator {
         get() = ConfigService.config.isTrailingCommaEnabled
 
 
-    fun buildCallParametersString(parameters: List<KtParameter>?): String = buildString {
+    fun buildCallParametersString(
+        parameters: List<KtParameter>?,
+        defaultsSet: DefaultValuesProvider.DefaultsSet,
+    ): String = buildString {
         val shouldGenerateDefaults = shouldGenerateDefaults
         val isSkipViewModel = isSkipViewModel
         val isModifierGenerationEnabled = isModifierGenerationEnabled
@@ -54,7 +58,7 @@ internal class PreviewArgumentsListGenerator {
                     .append(" = ")
                 val argumentValueType = parameter.descriptor?.argumentValueType
                 if (argumentValueType != null) {
-                    append(getDefaultForType(argumentValueType))
+                    append(getDefaultForType(argumentValueType, defaultsSet))
                 } else {
                     LOG.warn("Descriptor null: ${parameter.name}")
                 }

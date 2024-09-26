@@ -1,8 +1,5 @@
 package com.dropdrage.simpleComposePreviewGenerator.utils.writer
 
-import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
-import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewLocation
-import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositionChangeListener
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
 import com.intellij.codeInsight.template.Template
 import com.intellij.codeInsight.template.TemplateManager
@@ -18,33 +15,14 @@ import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
 import org.jetbrains.kotlin.psi.KtFile
 
-internal object PreviewWriter : PreviewPositionChangeListener {
+internal object PreviewFunctionToFileWriter {
 
     private const val WRITE_COMPOSE_PREVIEW_COMMAND = "write_compose_preview"
 
     private val LOG = thisLogger()
 
-    private var currentWriterType: PreviewLocation = ConfigService.config.previewLocation
-    private var writer: BasePreviewWriter
-
-
-    init {
-        writer = when (currentWriterType) {
-            PreviewLocation.FILE_END -> EndFilePreviewWriter()
-            PreviewLocation.AFTER_FUNCTION -> AfterTargetPreviewWriter()
-        }
-        PreviewPositionChangeListener.subscribe(this)
-    }
-
-    override fun onPreviewPositionChanged() {
-        val previewLocation = ConfigService.config.previewLocation
-        if (currentWriterType != previewLocation) {
-            writer = when (previewLocation) {
-                PreviewLocation.FILE_END -> EndFilePreviewWriter()
-                PreviewLocation.AFTER_FUNCTION -> AfterTargetPreviewWriter()
-            }
-        }
-    }
+    private val writer: BasePreviewWriter
+        get() = PreviewWriterProvider.writer
 
 
     fun write(

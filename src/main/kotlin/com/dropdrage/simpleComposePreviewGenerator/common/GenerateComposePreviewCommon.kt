@@ -9,6 +9,7 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.generator.PreviewFuncti
 import com.intellij.codeInsight.template.Template
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 internal class GenerateComposePreviewCommon { //ToDo to object?
@@ -20,16 +21,36 @@ internal class GenerateComposePreviewCommon { //ToDo to object?
 
     private val previewArgumentsListGenerator = PreviewArgumentsListGenerator()
 
+    fun buildPreviewStringOfPreviewFunction(functionElement: KtNamedFunction, project: Project): String {
+        val theme = getTheme(functionElement, project, ComposeThemeIndex::findAccessibleThemeName)
+        val argumentsList = buildPreviewFunctionArgumentsString(
+            functionElement,
+            DefaultValuesProvider.DefaultsSet.ONLY_NAMES,
+        )
+
+        return PreviewFunctionGenerator.generateString(
+            PreviewFunctionGenerator.AnnotationsSet.ONLY_NAMES,
+            theme,
+            functionElement.name!!,
+            argumentsList,
+        )
+    }
 
     fun buildPreviewFunctionString(functionElement: KtNamedFunction, project: Project): String {
-        val argumentsList: String = buildPreviewFunctionArgumentsString(functionElement)
+        val argumentsList = buildPreviewFunctionArgumentsString(functionElement)
         return buildPreviewFunctionString(functionElement, project, argumentsList)
     }
 
-    private fun buildPreviewFunctionArgumentsString(functionElement: KtNamedFunction): String {
+    private fun buildPreviewFunctionArgumentsString(
+        functionElement: KtNamedFunction,
+        defaultsSet: DefaultValuesProvider.DefaultsSet = DefaultValuesProvider.DefaultsSet.WITH_FQ,
+    ): String {
         val argumentsList: String
         LOG.logTimeOnDebug("Args string") {
-            argumentsList = previewArgumentsListGenerator.buildCallParametersString(functionElement.valueParameters)
+            argumentsList = previewArgumentsListGenerator.buildCallParametersString(
+                functionElement.valueParameters,
+                defaultsSet,
+            )
         }
         return argumentsList
     }
@@ -42,14 +63,24 @@ internal class GenerateComposePreviewCommon { //ToDo to object?
         project: Project,
         argumentsList: String,
     ): String {
-        val theme =
-            if (isThemeEnabled) {
-                val functionDeclarationDescriptor = functionElement.descriptorWithVisibility
-                ComposeThemeIndex.findAccessibleTheme(project, functionDeclarationDescriptor)
-            } else null
+        val theme = getTheme(functionElement, project, ComposeThemeIndex::findAccessibleThemeFq)
 
-        return PreviewFunctionGenerator.generateString(functionElement.name!!, argumentsList, theme)
+        return PreviewFunctionGenerator.generateString(
+            PreviewFunctionGenerator.AnnotationsSet.WITH_FQ,
+            theme,
+            functionElement.name!!,
+            argumentsList,
+        )
     }
+
+    private fun getTheme(
+        functionElement: KtNamedFunction,
+        project: Project,
+        findAccessibleTheme: (Project, DeclarationDescriptorWithVisibility) -> String?,
+    ): String? = if (isThemeEnabled) {
+        val functionDeclarationDescriptor = functionElement.descriptorWithVisibility
+        findAccessibleTheme(project, functionDeclarationDescriptor)
+    } else null
 
 
     fun buildPreviewFunctionArgumentsTemplate(
