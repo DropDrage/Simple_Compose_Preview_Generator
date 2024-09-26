@@ -1,6 +1,6 @@
 package com.dropdrage.simpleComposePreviewGenerator.index
 
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ShortNames
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.fqNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.shortNameStringSafe
 import com.intellij.openapi.diagnostic.thisLogger
@@ -51,16 +51,18 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
         private fun KtNamedFunction.isComposableTheme(): Boolean {
             return name?.endsWith(THEMES_KEY) == true
                 && canBeComposableTheme(annotationEntries)
-                && anyDescendantOfType<KtCallExpression> { it.callName() == ShortNames.Compose.Function.MATERIAL_THEME }
+                && anyDescendantOfType<KtCallExpression> {
+                it.callName() == Classes.Compose.Function.MaterialTheme.SHORT_NAME
+            }
         }
 
         private fun canBeComposableTheme(annotationEntries: List<KtAnnotationEntry>): Boolean {
             var isComposableFunction = false
             for (annotation in annotationEntries) {
                 val annotationShortName = annotation.shortNameStringSafe
-                if (!isComposableFunction && annotationShortName == ShortNames.Compose.Annotation.COMPOSABLE) {
+                if (!isComposableFunction && annotationShortName == Classes.Compose.Annotation.Composable.SHORT_NAME) {
                     isComposableFunction = true
-                } else if (annotationShortName == ShortNames.Compose.Annotation.PREVIEW) {
+                } else if (annotationShortName == Classes.Compose.Annotation.Preview.SHORT_NAME) {
                     LOG.debug("//// return false")
                     return false
                 }

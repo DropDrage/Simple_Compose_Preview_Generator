@@ -2,9 +2,8 @@ package com.dropdrage.simpleComposePreviewGenerator.common
 
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewGenerationSettingsChangeListener
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNCTION_ARGUMENTS_SEPARATOR
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ShortNames
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.classNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameSafeString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameString
@@ -185,7 +184,8 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 //        parameterValueType.isPrimitiveNumberType() || parameterValueType.isUnsignedNumberType() ->
 //            integerProvider.getValue(parameterValueType)
 
-        parameterValueType.isString() || parameterValueType.matchesFqName(FqNameStrings.CHAR_SEQUENCE) -> "\"\""
+        parameterValueType.isString() || parameterValueType.matchesFqName(Classes.Kotlin.CharSequence.FQ_STRING) ->
+            "\"\""
 
         parameterValueType.isUnit() -> "Unit"
         parameterValueType.isNothing() -> "TODO()" // if return Nothing in lambda
@@ -210,7 +210,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability ->
             buildLambdaDefault(parameterValueType, defaultsSet)
 
-        parameterValueType.matchesFqName(FqNameStrings.Compose.MODIFIER) -> defaultsSet.modifier
+        parameterValueType.matchesFqName(Classes.Compose.Modifier.FQ_STRING) -> defaultsSet.modifier
 //        parameterValueType.isAbstract() || parameterValueType.isInterface() -> "/* TODO Unknown abstract element */"
 
         else -> "" //buildCustomClass(parameterValueType, functionDeclarationDescriptor)
@@ -294,8 +294,8 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     enum class DefaultsSet(
         val modifier: String,
     ) {
-        WITH_FQ(FqNameStrings.Compose.MODIFIER),
-        ONLY_NAMES(ShortNames.Compose.MODIFIER),
+        WITH_FQ(Classes.Compose.Modifier.FQ_STRING),
+        ONLY_NAMES(Classes.Compose.Modifier.SHORT_NAME),
     }
 
 }

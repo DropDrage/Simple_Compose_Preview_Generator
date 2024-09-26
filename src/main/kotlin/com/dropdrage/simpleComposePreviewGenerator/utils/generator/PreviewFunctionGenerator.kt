@@ -3,8 +3,7 @@ package com.dropdrage.simpleComposePreviewGenerator.utils.generator
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.FirstAnnotation
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewBodyType
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ShortNames
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 
 @Suppress("NOTHING_TO_INLINE")
 internal object PreviewFunctionGenerator {
@@ -62,12 +61,12 @@ internal object PreviewFunctionGenerator {
         val composable: String,
     ) {
         WITH_FQ(
-            FqNameStrings.Compose.Annotation.PREVIEW,
-            FqNameStrings.Compose.Annotation.COMPOSABLE,
+            Classes.Compose.Annotation.Preview.FQ_STRING,
+            Classes.Compose.Annotation.Composable.FQ_STRING,
         ),
         ONLY_NAMES(
-            ShortNames.Compose.Annotation.PREVIEW,
-            ShortNames.Compose.Annotation.COMPOSABLE,
+            Classes.Compose.Annotation.Preview.SHORT_NAME,
+            Classes.Compose.Annotation.Composable.SHORT_NAME,
         ),
     }
 

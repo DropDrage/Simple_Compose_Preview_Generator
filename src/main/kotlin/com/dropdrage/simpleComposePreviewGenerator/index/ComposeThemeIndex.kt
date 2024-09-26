@@ -33,13 +33,13 @@ internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexVal
 
     override fun getKeyDescriptor(): KeyDescriptor<String> = EnumeratorStringDescriptor.INSTANCE
 
-    override fun getValueExternalizer(): DataExternalizer<ThemeIndexValue> =
-        StringCollectionExternalizer(::ArrayList)
+    override fun getValueExternalizer(): DataExternalizer<ThemeIndexValue> = StringCollectionExternalizer(::ArrayList)
 
 
     companion object {
 
         private val NAME: ID<String, ThemeIndexValue> = ID.create(ComposeThemeIndex::class.java.name)
+
 
         fun findAccessibleThemeName(
             project: Project,
@@ -76,5 +76,7 @@ internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexVal
             }
             return null
         }
+
     }
+
 }

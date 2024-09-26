@@ -5,8 +5,7 @@ package com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi
 import com.android.tools.compose.isComposableAnnotation
 import com.android.tools.idea.kotlin.fqNameMatches
 import com.android.tools.idea.kotlin.hasAnnotation
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.ClassIds
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNameStrings
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 import com.intellij.openapi.diagnostic.thisLogger
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -15,7 +14,7 @@ internal fun KtNamedFunction.isTargetForComposePreview(): Boolean {
     for (annotation in annotationEntries) {
         if (!isComposableFunction && annotation.isComposableAnnotation()) {
             isComposableFunction = true
-        } else if (annotation.fqNameMatches(FqNameStrings.Compose.Annotation.PREVIEW)) {
+        } else if (annotation.fqNameMatches(Classes.Compose.Annotation.Preview.FQ_STRING)) {
             KtNamedFunctionExtensions.LOG.debug("//// return false")
             return false
         }
@@ -26,7 +25,7 @@ internal fun KtNamedFunction.isTargetForComposePreview(): Boolean {
 }
 
 internal inline fun KtNamedFunction.isComposePreviewFunction(): Boolean =
-    hasAnnotation(ClassIds.Annotation.Compose.PREVIEW)
+    hasAnnotation(Classes.Compose.Annotation.Preview.CLASS_ID)
 
 internal inline val KtNamedFunction.fqNameString: String
     get() = fqName!!.asString()

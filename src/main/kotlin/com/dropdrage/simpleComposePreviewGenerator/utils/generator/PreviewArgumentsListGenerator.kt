@@ -4,8 +4,8 @@ import androidx.compose.ui.util.fastForEach
 import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider
 import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider.getDefaultForType
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
+import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNCTION_ARGUMENTS_SEPARATOR
-import com.dropdrage.simpleComposePreviewGenerator.utils.constant.FqNames
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.template.Template
 import com.intellij.codeInsight.template.TemplateManager
@@ -130,12 +130,12 @@ internal class PreviewArgumentsListGenerator {
         parameter.defaultValue == null || run {
             val typeFqName = parameter.typeFqName()
             shouldGenerateDefaults && !shouldSkipViewModel(isSkipViewModel, typeFqName)
-                || isModifierGenerationEnabled && typeFqName == FqNames.Compose.MODIFIER
+                || isModifierGenerationEnabled && typeFqName == Classes.Compose.Modifier.FQ_NAME
         }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun shouldSkipViewModel(isSkipViewModel: Boolean, typeFqName: FqName?): Boolean =
-        isSkipViewModel && typeFqName == FqNames.Android.VIEWMODEL
+        isSkipViewModel && typeFqName == Classes.Android.ViewModel.FQ_NAME
 
 
     companion object {
