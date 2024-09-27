@@ -1,28 +1,45 @@
 <html>
 <body>
-Generates @Preview for this composable function.
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Generates a preview for a composable function with arguments.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    The generated preview function name has Preview suffix.
+    If <a href="settings://SimpleComposePreviewGeneratorConfigurable?Add">Add theme</a> option
+    is enabled the composable function call will be wrapped in first accessible theme.
 </p>
-<p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
-</p>
-<p>
-    Embed code snippets:
-</p>
-<pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
-</code></pre>
-<!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
 
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
+<p>
+    After generation all the arguments can be edited with IDE smart autocompletion.
+    Arguments of some types are provided with default simplifying elements
+    (e.g. <code>String</code> argument is generated with <code>""</code> value)
+</p>
+<p>
+    Argument types that have default simplifying elements:
+</p>
+<ul>
+    <li>Nullable types (optional)</li>
+    <li>Enums</li>
+    <li>Lambdas</li>
+    <li><code>Char</code></li>
+    <li><code>String</code>, <code>CharSequence</code></li>
+    <li><code>Unit</code>, <code>Nothing</code></li>
+    <li><code>Modifier</code></li>
+    <li>Arrays: <code>Array</code>, <code>IntArray</code>, <code>UIntArray</code>, <code>FloatArray</code> and etc.</li>
+    <li>Iterables: <code>Iterable</code>, <code>Collection</code>, <code>List</code>,
+        <code>MutableList</code>, <code>AbstractList</code>, <code>ArrayList</code></li>
+    <li>Sets: <code>Set</code>, <code>MutableSet</code>, <code>HashSet</code>, <code>LinkedHashSet</code>,
+        <code>SortedSet</code>, <code>TreeSet</code></li>
+    <li>Maps: <code>Map</code>, <code>MutableMap</code>, <code>HashMap</code>, <code>LinkedHashMap</code>,
+        <code>SortedMap</code></li>
+    <li><code>Sequence</code></li>
+    <li>Kotlin Immutable Collections: <code>ImmutableCollection</code>, <code>ImmutableList</code>,
+        <code>ImmutableSet</code>, <code>ImmutableMap</code> and same for <code>Persistent</code> ones
+    </li>
+</ul>
+
+<!-- tooltip end -->
+<p>
+    Configurable with <a href="settings://SimpleComposePreviewGeneratorConfigurable">Settings | Other Settings |
+    Simple Compose Preview Generator</a>.
+</p>
 </body>
 </html>

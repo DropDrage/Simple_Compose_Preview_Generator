@@ -1,0 +1,48 @@
+@Composable
+fun Greeting(
+    boolean: Boolean,
+
+    int: Int,
+    long: Long,
+
+    uInt: UInt,
+    uLong: ULong,
+
+    float: Float,
+    double: Double,
+
+    c: Char,
+    name: String,
+    charSequence: CharSequence,
+
+    unit: Unit,
+    any: Any,
+
+    customClass: CustomClass,
+    customEnum: CustomEnum,
+
+    iterable: Iterable&lt;Int&gt;,
+    collection: Collection&lt;Int&gt;,
+    list: List&lt;Int&gt;,
+    array: Array&lt;Int&gt;,
+    intArray: IntArray,
+
+    map: Map&lt;String, Int&gt;,
+    mutableMap: MutableMap&lt;String, Int&gt;,
+    hashMap: HashMap&lt;String, Int&gt;,
+
+    set: Set&lt;Int&gt;,
+    mutableSet: MutableSet&lt;Int&gt;,
+    hashSet: HashSet&lt;Int&gt;,
+
+    sequence: Sequence&lt;Int&gt;,
+
+    lambda: () -> Unit,
+    lambdaA: (Int) -> Unit,
+    rLambdaACCASuspend: suspend (Int, CustomClass, CustomClassA) -> CustomClassA,
+
+    modifier: Modifier = Modifier,
+    viewModel: ViewModel = viewModel(),
+) {
+    //....
+}

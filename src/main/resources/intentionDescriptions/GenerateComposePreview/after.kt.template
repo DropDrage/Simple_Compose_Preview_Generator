@@ -1,0 +1,38 @@
+@Preview
+@Composable
+private fun GreetingPreview() {
+    MyComposeTheme {
+        Greeting(
+            boolean = ,
+            int = ,
+            long = ,
+            uInt = ,
+            uLong = ,
+            float = ,
+            double = ,
+            c = '',
+            name = "",
+            charSequence = "",
+            unit = Unit,
+            any = ,
+            customClass = ,
+            customEnum = CustomEnum.FIRST_V,
+            iterable = listOf(),
+            collection = listOf(),
+            list = listOf(),
+            array = arrayOf(),
+            intArray = intArrayOf(),
+            map = mapOf(),
+            mutableMap = mutableMapOf(),
+            hashMap = hashMapOf(),
+            set = setOf(),
+            mutableSet = mutableSetOf(),
+            hashSet = hashSetOf(),
+            sequence = sequenceOf(),
+            lambda = { },
+            lambdaA = { _-> },
+            rLambdaACCASuspend = { _, _, _-> },
+            modifier = Modifier,
+        )
+    }
+}

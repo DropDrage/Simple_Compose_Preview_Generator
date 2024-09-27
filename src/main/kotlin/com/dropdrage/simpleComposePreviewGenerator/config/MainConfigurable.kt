@@ -7,7 +7,7 @@ import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewGenera
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositionChangePublisher
 import com.dropdrage.simpleComposePreviewGenerator.utils.i18n.SimpleComposePreviewGeneratorBundle.message
 import com.intellij.openapi.application.invokeLater
-import com.intellij.openapi.options.BoundConfigurable
+import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.EnumComboBoxModel
@@ -20,7 +20,7 @@ import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
 
 @Suppress("NOTHING_TO_INLINE")
-class MainConfigurable : BoundConfigurable(message("settings.title")) {
+class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), "SimpleComposePreviewGenerator") {
 
     override fun createPanel() = panel {
         codeStyleSettings()

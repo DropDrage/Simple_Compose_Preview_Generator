@@ -33,7 +33,7 @@
         <projectConfigurable
                 parentId="other"
                 instance="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
-                id="com.dropdrage.simpleComposePreviewGenerator.config.MainConfigurable"
+                id="SimpleComposePreviewGeneratorConfigurable"
                 key="settings.title"
                 nonDefaultProject="true"/>
         <applicationService serviceImplementation="com.dropdrage.simpleComposePreviewGenerator.config.ConfigService"/>
