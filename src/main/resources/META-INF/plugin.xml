@@ -16,9 +16,56 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
-  ]]></description>
+        Generates preview for Compose function with theme (if enabled) and arguments.
+        Can be run for all the functions in file using
+        Generate (<code>Alt</code>+<code>Insert</code> by default) -> Generate All Compose Previews.
+        <p>
+            Generation can be configured (First annotation, Preview function body type,
+            Empty collection builders, Add theme and etc).
+        </p>
+        <p>
+            Generated preview function is private and ends with Preview suffix.
+            If Add theme option is enabled the composable function call will be wrapped in first accessible theme.
+        </p>
+        <p>
+            After generation all the arguments can be edited with IDE smart autocompletion.
+            Arguments of some types are provided with default simplifying elements
+            (e.g. <code>String</code> argument is generated with <code>""</code> value)
+        </p>
+
+        Argument types that generated with default simplifying elements:
+		<ul>
+		    <li>Nullable types (disabled by default)</li>
+            <li>Enums</li>
+            <li>Lambdas</li>
+            <li><code>Char</code></li>
+            <li><code>String</code>, <code>CharSequence</code></li>
+            <li><code>Unit</code>, <code>Nothing</code></li>
+            <li><code>Modifier</code></li>
+            <li>Arrays: <code>Array</code>, <code>IntArray</code>, <code>UIntArray</code>,
+                <code>FloatArray</code> and etc.</li>
+            <li>Iterables: <code>Iterable</code>, <code>Collection</code>, <code>List</code>,
+                <code>MutableList</code>, <code>AbstractList</code>, <code>ArrayList</code></li>
+            <li>Sets: <code>Set</code>, <code>MutableSet</code>, <code>HashSet</code>, <code>LinkedHashSet</code>,
+                <code>SortedSet</code>, <code>TreeSet</code></li>
+            <li>Maps: <code>Map</code>, <code>MutableMap</code>, <code>HashMap</code>, <code>LinkedHashMap</code>,
+                <code>SortedMap</code></li>
+            <li><code>Sequence</code></li>
+            <li>Kotlin Immutable Collections: <code>ImmutableCollection</code>, <code>ImmutableList</code>,
+                <code>ImmutableSet</code>, <code>ImmutableMap</code> and same for <code>Persistent</code> ones
+            </li>
+		</ul>
+ ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>0.34</h3>
+		<ul>
+			<li>Preview generation</li>
+			<li>Default simplifying elements for the most popular types</li>
+			<li>Inline edit</li>
+			<li>Preview of generated preview</li>
+		</ul>
+ ]]></change-notes>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
