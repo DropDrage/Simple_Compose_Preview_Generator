@@ -1,8 +1,8 @@
 <html>
 <body>
-Generates a preview for a composable function with arguments.
+Generates preview for Compose function with theme (if enabled) and arguments.
 <p>
-    The generated preview function name has Preview suffix.
+    The generated preview function is private and ends with Preview suffix.
     If <a href="settings://SimpleComposePreviewGeneratorConfigurable?Add">Add theme</a> option
     is enabled the composable function call will be wrapped in first accessible theme.
 </p>
@@ -13,10 +13,10 @@ Generates a preview for a composable function with arguments.
     (e.g. <code>String</code> argument is generated with <code>""</code> value)
 </p>
 <p>
-    Argument types that have default simplifying elements:
+    Argument types that generated with default simplifying elements:
 </p>
 <ul>
-    <li>Nullable types (optional)</li>
+    <li>Nullable types (disabled by default)</li>
     <li>Enums</li>
     <li>Lambdas</li>
     <li><code>Char</code></li>
