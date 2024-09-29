@@ -16,9 +16,12 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-        Generates preview for Compose function with theme (if enabled) and arguments.
-        Can be run for all the functions in file using
-        Generate (<code>Alt</code>+<code>Insert</code> by default) -> Generate All Compose Previews.
+        Generates a preview with theme (if enabled) and arguments for @Compose function quickly and without the Internet.
+        The average execution time is just over 1s regardless of the arguments count at least on my machine.
+        <p>
+            Can be run for all the functions in file using
+            Generate (<code>Alt</code>+<code>Insert</code> by default) -> Generate All Compose Previews.
+        </p>
         <p>
             Generation can be configured (First annotation, Preview function body type,
             Empty collection builders, Add theme and etc).
