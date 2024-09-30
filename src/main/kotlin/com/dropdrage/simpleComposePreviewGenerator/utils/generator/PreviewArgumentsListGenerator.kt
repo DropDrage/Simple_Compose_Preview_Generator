@@ -6,6 +6,7 @@ import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider.
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNCTION_ARGUMENTS_SEPARATOR
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.typeFqName
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.template.Template
 import com.intellij.codeInsight.template.TemplateManager
@@ -17,7 +18,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.nj2k.types.typeFqName
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.parameterIndex
 import org.jetbrains.kotlin.resolve.calls.results.argumentValueType
@@ -128,13 +128,13 @@ internal class PreviewArgumentsListGenerator {
         isModifierGenerationEnabled: Boolean,
     ): Boolean =
         parameter.defaultValue == null || run {
-            val typeFqName = parameter.typeFqName()
+            val typeFqName = parameter.typeFqName ?: return@run false
             shouldGenerateDefaults && !shouldSkipViewModel(isSkipViewModel, typeFqName)
                 || isModifierGenerationEnabled && typeFqName == Classes.Compose.Modifier.FQ_NAME
         }
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun shouldSkipViewModel(isSkipViewModel: Boolean, typeFqName: FqName?): Boolean =
+    private inline fun shouldSkipViewModel(isSkipViewModel: Boolean, typeFqName: FqName): Boolean =
         isSkipViewModel && typeFqName == Classes.Android.ViewModel.FQ_NAME
 
 
