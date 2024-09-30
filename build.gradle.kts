@@ -13,6 +13,10 @@ plugins {
 group = "com.dropdrage"
 version = "0.34"
 
+val targetIde = TargetIde.valueOf(
+    (project.properties.getOrDefault("targetIde", TargetIde.AS.name).toString()),
+)
+
 val env: MutableMap<String, String> = System.getenv()
 val dir: String = projectDir.parentFile.absolutePath
 fun properties(key: String) = providers.gradleProperty(key)
@@ -30,14 +34,23 @@ kotlin {
 
 dependencies {
     intellijPlatform {
-        local(getLocalProperty("AS_LOCAL_PATH"))
-
         bundledPlugins(
-//            "com.intellij.java",
+            "com.intellij.java",
             "org.jetbrains.kotlin",
-            "org.jetbrains.android",
-            "androidx.compose.plugins.idea",
         )
+
+        when (targetIde) {
+            TargetIde.AS -> {
+                local(getLocalProperty("AS_LOCAL_PATH"))
+
+                bundledPlugins(properties("asBundledPlugins").map { it.split(',') })
+            }
+
+            TargetIde.ICE -> {
+                local(getLocalProperty("ICE_LOCAL_PATH"))
+                plugins(properties("icePlugins").map { it.split(',') })
+            }
+        }
 
         instrumentationTools()
         zipSigner()
@@ -45,8 +58,9 @@ dependencies {
 }
 
 intellijPlatform {
+    buildSearchableOptions = targetIde == TargetIde.ICE
+
     pluginConfiguration {
-        name = properties("pluginName").get()
         version = project.version.toString()
 
         ideaVersion {
@@ -99,6 +113,12 @@ intellijPlatform {
 }
 
 //tasks {
+//    buildSearchableOptions {
+//        outputDirectory = File("./resources/searchableOptions.xml")
+//    }
+//}
+
+//tasks {
 //    // Set the JVM compatibility versions
 //    withType<JavaCompile> {
 //        sourceCompatibility = JavaVersion.VERSION_17.toString()
@@ -145,4 +165,8 @@ private fun getLocalProperty(key: String): String {
     }
 
     return properties.getProperty(key)
+}
+
+enum class TargetIde {
+    AS, ICE,
 }
