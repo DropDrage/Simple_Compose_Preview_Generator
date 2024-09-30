@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.models.ProductRelease
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.*
@@ -63,6 +65,36 @@ intellijPlatform {
 //        certificateChainFile.set(File(env.getOrDefault("CERTIFICATE_CHAIN", "$dir/pluginCert/chain.crt")))
 //        privateKeyFile.set(File(env.getOrDefault("PRIVATE_KEY", "$dir/pluginCert/private.pem")))
 //        password.set(File(env.getOrDefault("PRIVATE_KEY_PASSWORD", "$dir/pluginCert/password.txt")).readText(Charsets.UTF_8))
+    }
+
+    pluginVerification {
+        cliPath.set(file(getLocalProperty("PLUGIN_VERIFIER_CLI_PATH")))
+
+        if (env["PLUGIN_VERIFY_CI"].toBoolean()) {
+            ides {
+                select {
+                    types = listOf(IntelliJPlatformType.AndroidStudio)
+                    channels = listOf(ProductRelease.Channel.RELEASE)
+                    sinceBuild = properties("pluginSinceBuild")
+                    untilBuild = properties("pluginUntilBuild")
+                }
+            }
+            ides {
+                select {
+                    types = listOf(IntelliJPlatformType.IntellijIdeaCommunity)
+                    channels = listOf(ProductRelease.Channel.RELEASE)
+                    sinceBuild = properties("pluginSinceBuild")
+                    untilBuild = properties("pluginUntilBuild")
+                }
+            }
+        } else {
+            ides {
+                local(getLocalProperty("AS_LOCAL_PATH"))
+            }
+            ides {
+                local(getLocalProperty("ICE_LOCAL_PATH"))
+            }
+        }
     }
 }
 
