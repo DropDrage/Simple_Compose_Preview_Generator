@@ -5,6 +5,7 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.resolveRe
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
@@ -36,19 +37,17 @@ internal abstract class BasePreviewWriter(
         newLine: PsiElement,
         isArgumentsListStartOffsetRequired: Boolean,
     ): Int {
-        val firstElementOffset: Int =
-            if (functionWithPreviews.isNotEmpty()) {
-                val firstPreview = functionWithPreviews.first()
-                val addedPreview = file.addPreview(firstPreview)
-                if (isArgumentsListStartOffsetRequired) {
-                    addedPreview.getArgumentsListStartOffset(firstPreview.target)
-                } else {
-                    addedPreview.getFirstArgumentValueOffset(firstPreview.target)
-                }
-            } else error("Preview elements required")
+        if (functionWithPreviews.isEmpty()) error("Preview elements required")
 
-        for (i in 1 until functionWithPreviews.size) {
-            file.addPreview(functionWithPreviews[i])
+        val firstPreview = functionWithPreviews.first()
+        val argumentedPreview = file.addPreview(firstPreview.target, firstPreview.previewWithForcedArguments)
+        val firstElementOffset =
+            if (isArgumentsListStartOffsetRequired) argumentedPreview.getArgumentsListStartOffset(firstPreview.target)
+            else argumentedPreview.getFirstArgumentValueOffset(firstPreview.target)
+        argumentedPreview.delete()
+
+        for (functionWithPreview in functionWithPreviews) {
+            file.addPreview(functionWithPreview)
         }
         if (isNewLineAfterAllPreviewsRequired) {
             file.add(newLine)
@@ -79,6 +78,9 @@ internal abstract class BasePreviewWriter(
         findDescendantOfType<KtCallExpression> { it.resolveReferencedPsiElement == target }!!
 
 
-    protected abstract fun KtFile.addPreview(functionWithPreview: FunctionWithPreview): PsiElement
+    protected fun KtFile.addPreview(functionWithPreview: FunctionWithPreview): PsiElement =
+        addPreview(functionWithPreview.target, functionWithPreview.preview)
+
+    protected abstract fun KtFile.addPreview(target: KtElement, preview: KtElement): PsiElement
 
 }

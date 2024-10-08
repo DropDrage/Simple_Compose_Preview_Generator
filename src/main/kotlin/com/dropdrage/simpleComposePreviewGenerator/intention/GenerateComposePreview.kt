@@ -61,12 +61,19 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
 
         val project = targetFunction.project
         val previewArgumentsTemplate = previewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
-        val previewString = previewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
         val previewFunction: KtElement
+        val previewFunctionWithArguments: KtElement
         val newLine: PsiElement
         LOG.logTimeOnDebug("Psi") {
             val psiFactory = KtPsiFactory(project)
+            val previewString = previewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
             previewFunction = psiFactory.createFunction(previewString)
+            previewFunctionWithArguments = psiFactory.createFunction(
+                buildString {
+                    append(previewString)
+                    insert(findPreviewArgumentsStartIndex(previewString), previewArgumentsTemplate.templateText)
+                },
+            )
             newLine = psiFactory.createOnlyNewLine()
         }
         LOG.debug(lazyMessage = { previewFunction.text })
@@ -76,12 +83,15 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
                 project,
                 editor,
                 containingKtFile,
-                FunctionWithPreview(targetFunction, previewFunction),
+                FunctionWithPreview(targetFunction, previewFunction, previewFunctionWithArguments),
                 newLine,
                 previewArgumentsTemplate,
             )
         }
     }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun findPreviewArgumentsStartIndex(previewString: String): Int = previewString.lastIndexOf('(') + 1
 
 
     companion object {
