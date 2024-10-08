@@ -19,3 +19,19 @@ inline fun Logger.logTimeOnDebug(label: String, block: () -> Unit) {
         block()
     }
 }
+
+@OptIn(ExperimentalContracts::class)
+inline fun <R> Logger.logTimeOnDebugResulted(label: String, crossinline block: () -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+
+    val result: R
+    if (isDebugEnabled) {
+        val time = measureTime { result = block() }
+        debug("$label time: $time")
+    } else {
+        result = block()
+    }
+    return result
+}

@@ -1,6 +1,7 @@
 package com.dropdrage.simpleComposePreviewGenerator.utils.writer
 
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebugResulted
 import com.intellij.codeInsight.template.Template
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.application.WriteAction
@@ -63,9 +64,8 @@ internal object PreviewFunctionToFileWriter {
             val shortenReferences = ShortenReferences.DEFAULT
             val codeStyleManager = CodeStyleManager.getInstance(project)
 
-            val argumentsStartPosition: Int
-            LOG.logTimeOnDebug("Add") {
-                argumentsStartPosition = writer.addPreviewsToFile(
+            val argumentsStartPosition = LOG.logTimeOnDebugResulted("Add") {
+                writer.addPreviewsToFile(
                     file,
                     functionWithPreviews,
                     newLine,

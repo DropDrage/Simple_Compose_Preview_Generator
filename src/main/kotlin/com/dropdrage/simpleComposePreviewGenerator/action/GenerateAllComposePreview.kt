@@ -2,6 +2,7 @@ package com.dropdrage.simpleComposePreviewGenerator.action
 
 import com.dropdrage.simpleComposePreviewGenerator.common.GenerateComposePreviewCommon
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebugResulted
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.createOnlyNewLine
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isComposePreviewFunction
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.isTargetForComposePreview
@@ -18,7 +19,6 @@ import com.intellij.psi.util.childrenOfType
 import org.jetbrains.kotlin.idea.core.script.configuration.utils.getKtFile
 import org.jetbrains.kotlin.idea.refactoring.hostEditor
 import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
@@ -38,17 +38,15 @@ internal class GenerateAllComposePreview : AnAction() {
             val ktFile = project?.getKtFile(hostEditor?.virtualFile) ?: error("No file found")
 
             val psiFactory = KtPsiFactory(project)
-            val composePreviews: List<FunctionWithPreview>
-            LOG.logTimeOnDebug("/////////////// Compose") {
-                composePreviews = buildList {
+            val composePreviews = LOG.logTimeOnDebugResulted("/////////////// Compose") {
+                buildList {
                     val functions = ktFile.childrenOfType<KtNamedFunction>()
                     for (function in functions) {
                         if (function.isTargetForComposePreviewWithoutPreview(functions)) {
                             val previewFunction = previewCommon.buildPreviewFunctionString(function, project)
 
-                            val previewPsi: KtElement
-                            LOG.logTimeOnDebug("/////////////// Psi") {
-                                previewPsi = psiFactory.createFunction(previewFunction)
+                            val previewPsi = LOG.logTimeOnDebugResulted("/////////////// Psi") {
+                                psiFactory.createFunction(previewFunction)
                             }
                             add(FunctionWithPreview(function, previewPsi))
                         }
@@ -65,11 +63,8 @@ internal class GenerateAllComposePreview : AnAction() {
     }
 
     override fun update(e: AnActionEvent) {
-        val functions: PreviewFunctions?
-        LOG.logTimeOnDebug("Update") {
-            functions = e.project
-                ?.getKtFile(e.dataContext.hostEditor?.virtualFile)
-                ?.childrenOfType<KtNamedFunction>()
+        val functions = LOG.logTimeOnDebugResulted("Update") {
+            e.project?.getKtFile(e.dataContext.hostEditor?.virtualFile)?.childrenOfType<KtNamedFunction>()
         }
         e.presentation.isEnabledAndVisible = functions?.any {
             it.isTargetForComposePreviewWithoutPreview(functions)

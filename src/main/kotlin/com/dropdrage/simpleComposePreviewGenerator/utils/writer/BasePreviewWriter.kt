@@ -1,6 +1,6 @@
 package com.dropdrage.simpleComposePreviewGenerator.utils.writer
 
-import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebug
+import com.dropdrage.simpleComposePreviewGenerator.utils.extension.logTimeOnDebugResulted
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.resolveReferencedPsiElement
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
@@ -57,20 +57,12 @@ internal abstract class BasePreviewWriter(
     }
 
 
-    private fun PsiElement.getFirstArgumentValueOffset(target: PsiElement): Int {
-        val child: PsiElement
-        LOG.logTimeOnDebug("Child") {
-            child = findTargetCallElement(target).findDescendantOfType<KtValueArgument>()!!.lastChild
-        }
-        return child.textOffset
+    private fun PsiElement.getFirstArgumentValueOffset(target: PsiElement): Int = LOG.logTimeOnDebugResulted("Child") {
+        findTargetCallElement(target).findDescendantOfType<KtValueArgument>()!!.lastChild.textOffset
     }
 
-    private fun PsiElement.getArgumentsListStartOffset(target: PsiElement): Int {
-        val child: PsiElement
-        LOG.logTimeOnDebug("Child") {
-            child = findTargetCallElement(target).lastChild.firstChild.nextSibling
-        }
-        return child.textOffset
+    private fun PsiElement.getArgumentsListStartOffset(target: KtElement): Int = LOG.logTimeOnDebugResulted("Child") {
+        findTargetCallElement(target).lastChild.firstChild.nextSibling.textOffset
     }
 
     @Suppress("NOTHING_TO_INLINE")
