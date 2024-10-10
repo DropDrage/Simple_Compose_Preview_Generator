@@ -9,30 +9,24 @@
 
 package com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi
 
-import com.android.tools.compose.isComposableAnnotation
-import com.android.tools.idea.kotlin.fqNameMatches
-import com.android.tools.idea.kotlin.hasAnnotation
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 import com.intellij.openapi.diagnostic.thisLogger
+import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 internal fun KtNamedFunction.isTargetForComposePreview(): Boolean {
-    var isComposableFunction = false
-    for (annotation in annotationEntries) {
-        if (!isComposableFunction && annotation.isComposableAnnotation()) {
-            isComposableFunction = true
-        } else if (annotation.fqNameMatches(Classes.Compose.Annotation.Preview.FQ_STRING)) {
-            KtNamedFunctionExtensions.LOG.debug("//// return false")
-            return false
-        }
-    }
-
-    KtNamedFunctionExtensions.LOG.debug("//// $isComposableFunction")
+    val isComposableFunction = hasAnnotation(Classes.Compose.Annotation.Composable.FQ_NAME) &&
+        !hasAnnotation(Classes.Compose.Annotation.Preview.FQ_NAME)
+    KtNamedFunctionExtensions.LOG.debug("IsComposableFunction: $isComposableFunction")
     return isComposableFunction
 }
 
 internal inline fun KtNamedFunction.isComposePreviewFunction(): Boolean =
-    hasAnnotation(Classes.Compose.Annotation.Preview.CLASS_ID)
+    hasAnnotation(Classes.Compose.Annotation.Preview.FQ_NAME)
+
+private inline fun KtNamedFunction.hasAnnotation(annotationFqName: FqName): Boolean =
+    KotlinPsiHeuristics.hasAnnotation(this, annotationFqName)
 
 internal inline val KtNamedFunction.fqNameString: String
     get() = fqName!!.asString()

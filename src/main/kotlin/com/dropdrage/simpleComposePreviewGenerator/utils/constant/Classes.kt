@@ -7,9 +7,7 @@
 
 package com.dropdrage.simpleComposePreviewGenerator.utils.constant
 
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 
 object Classes {
     object Compose {
@@ -17,6 +15,8 @@ object Classes {
             object Composable {
                 const val SHORT_NAME = "Composable"
                 const val FQ_STRING = "androidx.compose.runtime.$SHORT_NAME"
+
+                val FQ_NAME = FqName(FQ_STRING)
             }
 
             object Preview {
@@ -24,8 +24,7 @@ object Classes {
                 const val PACKAGE = "androidx.compose.ui.tooling.preview"
                 const val FQ_STRING = "$PACKAGE.$SHORT_NAME"
 
-                val PACKAGE_FQ_NAME = FqName(PACKAGE)
-                val CLASS_ID = ClassId(PACKAGE_FQ_NAME, Name.identifier(SHORT_NAME))
+                val FQ_NAME = FqName(FQ_STRING)
             }
         }
 
