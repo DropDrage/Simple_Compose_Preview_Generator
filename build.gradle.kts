@@ -65,7 +65,7 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = properties("pluginSinceBuild")
-            untilBuild = properties("pluginUntilBuild")
+            untilBuild.set(null as String?) //properties("pluginUntilBuild")
         }
     }
 //    sandboxContainer = layout.projectDirectory.dir(properties("sandboxDir").get())

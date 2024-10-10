@@ -17,7 +17,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.kotlin.idea.codeinsight.utils.commitAndUnblockDocument
 import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
@@ -69,7 +68,7 @@ internal object PreviewFunctionToFileWriter {
     ) {
         val writeLambda: () -> Unit = {
             val shortenReferences = ShortenReferences.DEFAULT
-            val codeStyleManager = CodeStyleManager.getInstance(project)
+//            val codeStyleManager = CodeStyleManager.getInstance(project)
 
             val argumentsStartPosition = LOG.logTimeOnDebugResulted("Add") {
                 writer.addPreviewsToFile(

@@ -35,35 +35,33 @@ private typealias PreviewFunctions = List<KtNamedFunction>
 @Suppress("NOTHING_TO_INLINE")
 internal class GenerateAllComposePreview : AnAction() {
 
-    override fun actionPerformed(e: AnActionEvent) {
-        LOG.logTimeOnDebug("/////////////// All") {
-            val project = e.project
-            val hostEditor = e.dataContext.hostEditor
-            val ktFile = project?.getKtFile(hostEditor?.virtualFile) ?: error("No file found")
+    override fun actionPerformed(e: AnActionEvent) = LOG.logTimeOnDebug("All") {
+        val project = e.project
+        val hostEditor = e.dataContext.hostEditor
+        val ktFile = project?.getKtFile(hostEditor?.virtualFile) ?: error("No file found")
 
-            val psiFactory = KtPsiFactory(project)
-            val composePreviews = LOG.logTimeOnDebugResulted("/////////////// Compose") {
-                buildList {
-                    val functions = ktFile.childrenOfType<KtNamedFunction>()
-                    for (function in functions) {
-                        if (function.isTargetForComposePreviewWithoutPreview(functions)) {
-                            val previewFunction =
-                                GenerateComposePreviewCommon.buildPreviewFunctionString(function, project)
+        val psiFactory = KtPsiFactory(project)
+        val composePreviews = LOG.logTimeOnDebugResulted("Compose") {
+            buildList {
+                val functions = ktFile.childrenOfType<KtNamedFunction>()
+                for (function in functions) {
+                    if (function.isTargetForComposePreviewWithoutPreview(functions)) {
+                        val previewFunction =
+                            GenerateComposePreviewCommon.buildPreviewFunctionString(function, project)
 
-                            val previewPsi = LOG.logTimeOnDebugResulted("/////////////// Psi") {
-                                psiFactory.createFunction(previewFunction)
-                            }
-                            add(FunctionWithPreview(function, previewPsi))
+                        val previewPsi = LOG.logTimeOnDebugResulted("Psi") {
+                            psiFactory.createFunction(previewFunction)
                         }
+                        add(FunctionWithPreview(function, previewPsi))
                     }
                 }
             }
-            val newLine = psiFactory.createOnlyNewLine()
+        }
+        val newLine = psiFactory.createOnlyNewLine()
 
-            val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
-            LOG.logTimeOnDebug("/////////////// Write") {
-                PreviewFunctionToFileWriter.write(project, editor, ktFile, composePreviews, newLine)
-            }
+        val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
+        LOG.logTimeOnDebug("Write") {
+            PreviewFunctionToFileWriter.write(project, editor, ktFile, composePreviews, newLine)
         }
     }
 
