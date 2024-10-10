@@ -112,48 +112,6 @@ intellijPlatform {
     }
 }
 
-//tasks {
-//    buildSearchableOptions {
-//        outputDirectory = File("./resources/searchableOptions.xml")
-//    }
-//}
-
-//tasks {
-//    // Set the JVM compatibility versions
-//    withType<JavaCompile> {
-//        sourceCompatibility = JavaVersion.VERSION_17.toString()
-//        targetCompatibility = JavaVersion.VERSION_17.toString()
-//    }
-//    kotlin {
-//        compilerOptions {
-//            jvmTarget.set(JvmTarget.JVM_17)
-////            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-//        }
-//    }
-////    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-////        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
-////    }
-//
-//    runIde {
-//        jvmArguments.add("-Xmx4G")
-//        jvmArguments.add("-XX:+UseG1GC")
-//    }
-//
-//    patchPluginXml {
-//        sinceBuild.set("232")
-//        untilBuild.set("242.*")
-//    }
-//
-//    signPlugin {
-//        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-//        privateKey.set(System.getenv("PRIVATE_KEY"))
-//        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
-//    }
-//
-//    publishPlugin {
-//        token.set(System.getenv("PUBLISH_TOKEN"))
-//    }
-//}
 
 private fun getEnvOrLocalProperty(key: String): String = env.getOrDefault(key, getLocalPropertyUnsafe(key))!!
 

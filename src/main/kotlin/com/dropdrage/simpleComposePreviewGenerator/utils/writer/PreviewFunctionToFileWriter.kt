@@ -68,7 +68,6 @@ internal object PreviewFunctionToFileWriter {
     ) {
         val writeLambda: () -> Unit = {
             val shortenReferences = ShortenReferences.DEFAULT
-//            val codeStyleManager = CodeStyleManager.getInstance(project)
 
             val argumentsStartPosition = LOG.logTimeOnDebugResulted("Add") {
                 writer.addPreviewsToFile(
@@ -82,16 +81,6 @@ internal object PreviewFunctionToFileWriter {
 
             LOG.logTimeOnDebug("Commit") { file.commitAndUnblockDocument() }
             LOG.logTimeOnDebug("Shorten") { shortenReferences.process(file) }
-            LOG.logTimeOnDebug("Reformat") {
-                //                val changedRangesInfo = VcsFacade.getInstance().getChangedRangesInfo(file)
-                //                if (changedRangesInfo != null) {
-                //                    LOG.debug("Reformat chages")
-                //                    codeStyleManager.reformatChanges(file, changedRangesInfo,)
-                //                } else {
-                //                    LOG.debug("Reformat")
-//                codeStyleManager.reformat(file)
-                //                }
-            } // ToDo file or psi? // ToDo Reformat has no effect?
 
             afterWriteAction?.invoke()
         }
