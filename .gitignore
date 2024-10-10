@@ -2,6 +2,7 @@
 .kotlin/
 build/
 idea-sandbox/
+signing/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/

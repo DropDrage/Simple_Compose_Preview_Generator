@@ -71,14 +71,14 @@ intellijPlatform {
 //    sandboxContainer = layout.projectDirectory.dir(properties("sandboxDir").get())
 
     publishing {
-        token.set(env["PUBLISH_TOKEN"])
+        token.set(env.getOrDefault("PUBLISH_TOKEN", getLocalPropertyUnsafe("PUBLISH_TOKEN")))
         channels.set(listOf(env["PUBLISH_CHANNEL"] ?: "default"))
     }
 
     signing {
-//        certificateChainFile.set(File(env.getOrDefault("CERTIFICATE_CHAIN", "$dir/pluginCert/chain.crt")))
-//        privateKeyFile.set(File(env.getOrDefault("PRIVATE_KEY", "$dir/pluginCert/private.pem")))
-//        password.set(File(env.getOrDefault("PRIVATE_KEY_PASSWORD", "$dir/pluginCert/password.txt")).readText(Charsets.UTF_8))
+        certificateChainFile.set(File(getEnvOrLocalProperty("CERTIFICATE_CHAIN_FILE")))
+        privateKeyFile.set(File(getEnvOrLocalProperty("PRIVATE_KEY_FILE")))
+        password.set(File(getEnvOrLocalProperty("PRIVATE_KEY_PASSWORD_FILE")).readText(Charsets.UTF_8))
     }
 
     pluginVerification {
@@ -155,16 +155,17 @@ intellijPlatform {
 //    }
 //}
 
-private fun getLocalProperty(key: String): String {
-    val properties = Properties()
-    val localProperties = File("local.properties")
-    if (localProperties.isFile) {
-        InputStreamReader(FileInputStream(localProperties), Charsets.UTF_8).use(properties::load)
-    } else {
-        error("File from not found")
-    }
+private fun getEnvOrLocalProperty(key: String): String = env.getOrDefault(key, getLocalPropertyUnsafe(key))!!
 
-    return properties.getProperty(key)
+private fun getLocalProperty(key: String): String = getLocalPropertyUnsafe(key) ?: error("File is null")
+
+private fun getLocalPropertyUnsafe(key: String): String? {
+    val localProperties = File("local.properties")
+    return if (localProperties.isFile) {
+        val properties = Properties()
+        InputStreamReader(FileInputStream(localProperties), Charsets.UTF_8).use(properties::load)
+        properties.getProperty(key)
+    } else null
 }
 
 enum class TargetIde {
