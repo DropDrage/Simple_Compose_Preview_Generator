@@ -83,9 +83,9 @@ internal object PreviewFunctionToFileWriter {
                 //                    codeStyleManager.reformatChanges(file, changedRangesInfo,)
                 //                } else {
                 //                    LOG.debug("Reformat")
-                codeStyleManager.reformat(file)
+//                codeStyleManager.reformat(file)
                 //                }
-            } // ToDo file or psi?
+            } // ToDo file or psi? // ToDo Reformat has no effect?
 
             afterWriteAction?.invoke()
         }

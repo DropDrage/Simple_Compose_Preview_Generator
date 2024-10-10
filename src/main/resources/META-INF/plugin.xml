@@ -19,7 +19,7 @@
         Generates a preview with theme (if enabled) and arguments for @Compose function quickly and without the Internet.
         The average execution time is just over 1s regardless of the arguments count at least on my machine.
         <p>
-            Can be run for all the functions in file using
+            Can be run for all the functions <b>without Previews</b> in file using
             Generate (<code>Alt</code>+<code>Insert</code> by default) -> Generate All Compose Previews.
         </p>
         <p>

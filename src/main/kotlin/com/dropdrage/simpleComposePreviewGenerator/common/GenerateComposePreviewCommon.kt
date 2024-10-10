@@ -7,12 +7,14 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.descripto
 import com.dropdrage.simpleComposePreviewGenerator.utils.generator.PreviewArgumentsListGenerator
 import com.dropdrage.simpleComposePreviewGenerator.utils.generator.PreviewFunctionGenerator
 import com.intellij.codeInsight.template.Template
-import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-internal class GenerateComposePreviewCommon { //ToDo to object?
+internal object GenerateComposePreviewCommon {
+
+    private val LOG = thisLogger()
 
     //region Settings
     private val isThemeEnabled: Boolean
@@ -81,11 +83,6 @@ internal class GenerateComposePreviewCommon { //ToDo to object?
         project: Project,
     ): Template = LOG.logTimeOnDebugResulted("Args template") {
         previewArgumentsListGenerator.buildCallParametersTemplate(functionElement.valueParameters, project)
-    }
-
-
-    companion object {
-        private val LOG = logger<GenerateComposePreviewCommon>()
     }
 
 }

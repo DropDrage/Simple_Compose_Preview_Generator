@@ -37,7 +37,6 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private val USE_EMPTY_SEQUENCE_SETTING: Boolean
         get() = ConfigService.config.isEmptyBuilderForSequenceEnabled
     var SPACED_EMPTY_LAMBDA_SETTING = true
-    var USE_FIRST_ENUM_SETTING = true // ToDo sounds useless
 
     private val useNull: Boolean
         get() = ConfigService.config.isFillNullableWithNullsEnabled
@@ -211,7 +210,6 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
             buildLambdaDefault(parameterValueType, defaultsSet)
 
         parameterValueType.matchesFqName(Classes.Compose.Modifier.FQ_STRING) -> defaultsSet.modifier
-//        parameterValueType.isAbstract() || parameterValueType.isInterface() -> "/* TODO Unknown abstract element */"
 
         else -> "" //buildCustomClass(parameterValueType, functionDeclarationDescriptor)
     }
@@ -219,8 +217,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 
     private fun getEnumElement(parameterValueType: KotlinType): String {
         val enumEntries = parameterValueType.toClassDescriptor!!.enumEntries()
-        return if (USE_FIRST_ENUM_SETTING) enumEntries.first().fqNameSafeString
-        else enumEntries.last().fqNameSafeString
+        return enumEntries.first().fqNameSafeString
     }
 
     private fun buildPrimitiveArray(parameterValueType: KotlinType): String =

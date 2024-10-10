@@ -28,9 +28,6 @@ private typealias PreviewFunctions = List<KtNamedFunction>
 @Suppress("NOTHING_TO_INLINE")
 internal class GenerateAllComposePreview : AnAction() {
 
-    private val previewCommon = GenerateComposePreviewCommon()
-
-
     override fun actionPerformed(e: AnActionEvent) {
         LOG.logTimeOnDebug("/////////////// All") {
             val project = e.project
@@ -43,7 +40,8 @@ internal class GenerateAllComposePreview : AnAction() {
                     val functions = ktFile.childrenOfType<KtNamedFunction>()
                     for (function in functions) {
                         if (function.isTargetForComposePreviewWithoutPreview(functions)) {
-                            val previewFunction = previewCommon.buildPreviewFunctionString(function, project)
+                            val previewFunction =
+                                GenerateComposePreviewCommon.buildPreviewFunctionString(function, project)
 
                             val previewPsi = LOG.logTimeOnDebugResulted("/////////////// Psi") {
                                 psiFactory.createFunction(previewFunction)

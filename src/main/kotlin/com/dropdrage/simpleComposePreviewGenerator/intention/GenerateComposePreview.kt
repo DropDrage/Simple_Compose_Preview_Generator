@@ -26,15 +26,13 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
     lazyMessage("intention.generatePreview.familyName"),
 ) {
 
-    private val previewCommon = GenerateComposePreviewCommon()
-
-
     override fun isApplicableTo(element: KtNamedFunction): Boolean = element.isTargetForComposePreview()
 
     override fun generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo {
         val targetFunction = getTarget(editor, file) ?: return IntentionPreviewInfo.EMPTY
         LOG.logTimeOnDebug("Preview/All") {
-            val previewString = previewCommon.buildPreviewStringOfPreviewFunction(targetFunction, project)
+            val previewString =
+                GenerateComposePreviewCommon.buildPreviewStringOfPreviewFunction(targetFunction, project)
             val previewFunction: KtElement
             val newLine: PsiElement
             LOG.logTimeOnDebug("Preview/Psi") {
@@ -60,13 +58,15 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
         if (!containingKtFile.isPhysical) return@logTimeOnDebug
 
         val project = targetFunction.project
-        val previewArgumentsTemplate = previewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
+        val previewArgumentsTemplate =
+            GenerateComposePreviewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
         val previewFunction: KtElement
         val previewFunctionWithArguments: KtElement
         val newLine: PsiElement
         LOG.logTimeOnDebug("Psi") {
             val psiFactory = KtPsiFactory(project)
-            val previewString = previewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
+            val previewString =
+                GenerateComposePreviewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
             previewFunction = psiFactory.createFunction(previewString)
             previewFunctionWithArguments = psiFactory.createFunction(
                 buildString {
