@@ -67,13 +67,16 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
         val project = targetFunction.project
         val previewArgumentsTemplate =
             GenerateComposePreviewCommon.buildPreviewFunctionArgumentsTemplate(targetFunction, project)
+        val previewString = GenerateComposePreviewCommon.buildPreviewFunctionStringForTemplate(
+            targetFunction,
+            project,
+            previewArgumentsTemplate.templateText.isNotEmpty(),
+        )
         val previewFunction: KtElement
         val previewFunctionWithArguments: KtElement
         val newLine: PsiElement
         LOG.logTimeOnDebug("Psi") {
             val psiFactory = KtPsiFactory(project)
-            val previewString =
-                GenerateComposePreviewCommon.buildPreviewFunctionStringForTemplate(targetFunction, project)
             previewFunction = psiFactory.createFunction(previewString)
             previewFunctionWithArguments = psiFactory.createFunction(
                 buildString {

@@ -15,7 +15,9 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtValueArgument
+import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 
 internal abstract class BasePreviewWriter(
     private val LOG: Logger,
@@ -65,7 +67,9 @@ internal abstract class BasePreviewWriter(
 
 
     private fun PsiElement.getFirstArgumentValueOffset(target: PsiElement): Int = LOG.logTimeOnDebugResulted("Child") {
-        findTargetCallElement(target).findDescendantOfType<KtValueArgument>()!!.lastChild.textOffset
+        val findTargetCallElement = findTargetCallElement(target)
+        findTargetCallElement.findDescendantOfType<KtValueArgument>()?.lastChild?.textOffset
+            ?: findTargetCallElement.getChildOfType<KtValueArgumentList>()!!.lastChild.textOffset
     }
 
     private fun PsiElement.getArgumentsListStartOffset(target: KtElement): Int = LOG.logTimeOnDebugResulted("Child") {

@@ -27,7 +27,7 @@ internal object PreviewFunctionGenerator {
         annotations: AnnotationsSet,
         theme: String?,
         functionName: String,
-        argumentsList: String,
+        argumentsList: ArgumentsList,
     ): String = buildString {
         append('\n')
 
@@ -43,14 +43,20 @@ internal object PreviewFunctionGenerator {
         if (isExpressionBody) {
             append("= ")
         } else {
-            append("{\n")
+            append(" {\n")
         }
 
         if (theme != null) append(theme).append("{\n")
         else if (isThemeEnabled) append("/* TODO WARN: Accessible theme is not found */\n")
 
-        append(functionName).append("(\n")
-            .append(argumentsList)
+        append(functionName).append('(')
+        if (argumentsList is ArgumentsList.HasArgumentsButInsertedOutside) {
+            append('\n')
+
+            if (argumentsList is ArgumentsList.HasArguments) {
+                append(argumentsList.arguments)
+            }
+        }
         append(")\n")
 
         if (theme != null) append("}\n")
@@ -75,6 +81,16 @@ internal object PreviewFunctionGenerator {
             Classes.Compose.Annotation.Preview.SHORT_NAME,
             Classes.Compose.Annotation.Composable.SHORT_NAME,
         ),
+    }
+
+    sealed interface ArgumentsList {
+        object NoArguments : ArgumentsList
+        open class HasArgumentsButInsertedOutside() : ArgumentsList
+        class HasArguments(val arguments: String) : HasArgumentsButInsertedOutside() {
+            init {
+                require(arguments.isNotBlank())
+            }
+        }
     }
 
 }

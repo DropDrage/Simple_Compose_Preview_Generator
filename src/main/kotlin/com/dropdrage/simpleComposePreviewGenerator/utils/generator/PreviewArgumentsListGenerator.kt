@@ -72,7 +72,7 @@ internal class PreviewArgumentsListGenerator {
             }
         }
 
-        if (isTrailingCommaEnabled) {
+        if (isTrailingCommaEnabled && isNotEmpty()) {
             append(FUNCTION_ARGUMENTS_SEPARATOR)
         }
     }
@@ -116,9 +116,10 @@ internal class PreviewArgumentsListGenerator {
                 }
             }
 
-            if (isTrailingCommaEnabled) {
+            val isNotBlank = templateText.isNotBlank()
+            if (isTrailingCommaEnabled && isNotBlank) {
                 addTextSegment("$FUNCTION_ARGUMENTS_SEPARATOR")
-            }
+            } else if (!isNotBlank) return templateManager.createTemplate("", "")
         }
     }
 

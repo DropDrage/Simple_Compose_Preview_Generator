@@ -41,14 +41,19 @@ internal object GenerateComposePreviewCommon {
             PreviewFunctionGenerator.AnnotationsSet.ONLY_NAMES,
             theme,
             functionElement.name!!,
-            argumentsList,
+            mapArgumentsStringToArgumentsList(argumentsList),
         )
     }
 
     fun buildPreviewFunctionString(functionElement: KtNamedFunction, project: Project): String {
         val argumentsList = buildPreviewFunctionArgumentsString(functionElement)
-        return buildPreviewFunctionString(functionElement, project, argumentsList)
+        return buildPreviewFunctionString(functionElement, project, mapArgumentsStringToArgumentsList(argumentsList))
     }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun mapArgumentsStringToArgumentsList(argumentsList: String) =
+        if (argumentsList.isNotBlank()) PreviewFunctionGenerator.ArgumentsList.HasArguments(argumentsList)
+        else PreviewFunctionGenerator.ArgumentsList.NoArguments
 
     private fun buildPreviewFunctionArgumentsString(
         functionElement: KtNamedFunction,
@@ -57,13 +62,21 @@ internal object GenerateComposePreviewCommon {
         previewArgumentsListGenerator.buildCallParametersString(functionElement.valueParameters, defaultsSet)
     }
 
-    fun buildPreviewFunctionStringForTemplate(functionElement: KtNamedFunction, project: Project): String =
-        buildPreviewFunctionString(functionElement, project, "")
+    fun buildPreviewFunctionStringForTemplate(
+        functionElement: KtNamedFunction,
+        project: Project,
+        hasArguments: Boolean,
+    ): String = buildPreviewFunctionString(
+        functionElement,
+        project,
+        if (hasArguments) PreviewFunctionGenerator.ArgumentsList.HasArgumentsButInsertedOutside()
+        else PreviewFunctionGenerator.ArgumentsList.NoArguments,
+    )
 
     private fun buildPreviewFunctionString(
         functionElement: KtNamedFunction,
         project: Project,
-        argumentsList: String,
+        argumentsList: PreviewFunctionGenerator.ArgumentsList,
     ): String = LOG.logTimeOnDebugResulted("Build Preview String") {
         val theme = getTheme(functionElement, project, ComposeThemeIndex::findAccessibleThemeFq)
 
