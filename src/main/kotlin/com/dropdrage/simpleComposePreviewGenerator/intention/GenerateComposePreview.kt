@@ -87,6 +87,7 @@ internal class GenerateComposePreview : SelfTargetingOffsetIndependentIntention<
             newLine = psiFactory.createOnlyNewLine()
         }
         LOG.debug(lazyMessage = { previewFunction.text })
+        LOG.debug(lazyMessage = { previewArgumentsTemplate.templateText })
 
         LOG.logTimeOnDebug("Write") {
             PreviewFunctionToFileWriter.write(
