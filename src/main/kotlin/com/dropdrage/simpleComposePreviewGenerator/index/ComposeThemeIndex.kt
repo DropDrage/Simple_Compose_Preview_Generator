@@ -7,7 +7,7 @@
 
 package com.dropdrage.simpleComposePreviewGenerator.index
 
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.compiler.plugins.kotlin.lower.fastForEach
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isAccessibleFrom
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.psi.descriptorWithVisibility
 import com.intellij.openapi.project.Project

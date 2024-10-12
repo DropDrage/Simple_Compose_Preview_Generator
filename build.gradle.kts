@@ -1,3 +1,6 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
+import org.gradle.api.provider.Provider
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.models.ProductRelease
 import java.io.FileInputStream
@@ -18,7 +21,6 @@ val targetIde = TargetIde.valueOf(
 )
 
 val env: MutableMap<String, String> = System.getenv()
-val dir: String = projectDir.parentFile.absolutePath
 fun properties(key: String) = providers.gradleProperty(key)
 
 repositories {
@@ -34,21 +36,17 @@ kotlin {
 
 dependencies {
     intellijPlatform {
-        bundledPlugins(
-            "com.intellij.java",
-            "org.jetbrains.kotlin",
-        )
+        bundledPlugins(getPlugins("baseBundledPlugins"))
 
         when (targetIde) {
             TargetIde.AS -> {
                 local(getLocalProperty("AS_LOCAL_PATH"))
-
-                bundledPlugins(properties("asBundledPlugins").map { it.split(',') })
+                bundledPlugins(getPlugins("asBundledPlugins"))
             }
 
             TargetIde.ICE -> {
                 local(getLocalProperty("ICE_LOCAL_PATH"))
-                plugins(properties("icePlugins").map { it.split(',') })
+                plugins(getPlugins("icePlugins"))
             }
         }
 
@@ -65,10 +63,8 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = properties("pluginSinceBuild")
-            untilBuild.set(null as String?) //properties("pluginUntilBuild")
         }
     }
-//    sandboxContainer = layout.projectDirectory.dir(properties("sandboxDir").get())
 
     publishing {
         token.set(env.getOrDefault("PUBLISH_TOKEN", getLocalPropertyUnsafe("PUBLISH_TOKEN")))
@@ -113,9 +109,11 @@ intellijPlatform {
 }
 
 
-private fun getEnvOrLocalProperty(key: String): String = env.getOrDefault(key, getLocalPropertyUnsafe(key))!!
+private inline fun getPlugins(key: String): Provider<List<String>> = properties(key).map { it.split(',') }
 
-private fun getLocalProperty(key: String): String = getLocalPropertyUnsafe(key) ?: error("File is null")
+private inline fun getEnvOrLocalProperty(key: String): String = env.getOrDefault(key, getLocalPropertyUnsafe(key))!!
+
+private inline fun getLocalProperty(key: String): String = getLocalPropertyUnsafe(key) ?: error("File is null")
 
 private fun getLocalPropertyUnsafe(key: String): String? {
     val localProperties = File("local.properties")

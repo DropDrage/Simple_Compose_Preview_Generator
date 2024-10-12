@@ -7,7 +7,7 @@
 
 package com.dropdrage.simpleComposePreviewGenerator.utils.generator
 
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.compiler.plugins.kotlin.lower.fastForEach
 import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider
 import com.dropdrage.simpleComposePreviewGenerator.common.DefaultValuesProvider.getDefaultForType
 import com.dropdrage.simpleComposePreviewGenerator.config.ConfigService

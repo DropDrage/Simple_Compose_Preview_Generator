@@ -71,8 +71,6 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.kotlin</depends>
-    <depends>org.jetbrains.android</depends>
-    <depends>androidx.compose.plugins.idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable
@@ -98,4 +96,7 @@
             <add-to-group group-id="GenerateGroup" anchor="first"/>
         </action>
     </actions>
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK2="false"/>
+    </extensions>
 </idea-plugin>
