@@ -36,6 +36,10 @@ private typealias PreviewFunctions = List<KtNamedFunction>
 internal class GenerateAllComposePreview : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) = LOG.logTimeOnDebug("All") {
+        val editor: Editor = e.getData(CommonDataKeys.EDITOR) ?: run {
+            LOG.warn("Editor is null. Action invocation cancelled.")
+            return@logTimeOnDebug
+        }
         val project = e.project
         val hostEditor = e.dataContext.hostEditor
         val ktFile = project?.getKtFile(hostEditor?.virtualFile) ?: error("No file found")
@@ -59,7 +63,6 @@ internal class GenerateAllComposePreview : AnAction() {
         }
         val newLine = psiFactory.createOnlyNewLine()
 
-        val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
         LOG.logTimeOnDebug("Write") {
             PreviewFunctionToFileWriter.write(project, editor, ktFile, composePreviews, newLine)
         }
