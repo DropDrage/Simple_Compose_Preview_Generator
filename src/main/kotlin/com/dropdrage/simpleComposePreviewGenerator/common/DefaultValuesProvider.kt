@@ -208,7 +208,9 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         parameterValueType.isIterableListHasKotlinBuilder() -> buildIterableWithKotlinBuilder(parameterValueType)
         parameterValueType.isSetHasKotlinBuilder() -> buildSetWithKotlinBuilder(parameterValueType)
         parameterValueType.isMapHasKotlinBuilder() -> buildMapWithKotlinBuilder(parameterValueType)
-        parameterValueType.isImmutableHasKotlinBuilder() -> buildImmutablesWithKotlinBuilder(parameterValueType)
+        parameterValueType.isImmutableHasKotlinBuilder() ->
+            buildImmutablesWithKotlinBuilder(parameterValueType, defaultsSet)
+
         parameterValueType.matchesFqName(KOTLIN_SEQUENCES_SEQUENCE) ->
             if (USE_EMPTY_SEQUENCE_SETTING) EMPTY_SEQUENCE
             else SEQUENCE_OF // sequence {}, emptySequence(), generateSequence { }
@@ -260,8 +262,10 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private inline fun KotlinType.isImmutableHasKotlinBuilder(): Boolean =
         supportedKotlinxImmutables.containsKey(fqNameString)
 
-    private inline fun buildImmutablesWithKotlinBuilder(parameterValueType: KotlinType): String =
-        supportedKotlinxImmutables[parameterValueType.fqNameString]!!
+    private inline fun buildImmutablesWithKotlinBuilder(
+        parameterValueType: KotlinType,
+        defaultsSet: DefaultsSet,
+    ): String = defaultsSet.kotlinxImmutables[parameterValueType.fqNameString]!!
 
     private fun buildLambdaDefault(
         parameterValueType: KotlinType,
@@ -297,9 +301,16 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 
     enum class DefaultsSet(
         val modifier: String,
+        val kotlinxImmutables: Map<String, String>,
     ) {
-        WITH_FQ(Classes.Compose.Modifier.FQ_STRING),
-        ONLY_NAMES(Classes.Compose.Modifier.SHORT_NAME),
+        WITH_FQ(
+            Classes.Compose.Modifier.FQ_STRING,
+            supportedKotlinxImmutables,
+        ),
+        ONLY_NAMES(
+            Classes.Compose.Modifier.SHORT_NAME,
+            supportedKotlinxImmutables.mapValues { it.value.substringAfterLast('.') },
+        ),
     }
 
 }
