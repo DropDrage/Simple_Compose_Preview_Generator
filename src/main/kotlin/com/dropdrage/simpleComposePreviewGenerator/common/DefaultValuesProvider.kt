@@ -14,8 +14,6 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Constants.FUNC
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.classNameString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameSafeString
 import com.dropdrage.simpleComposePreviewGenerator.utils.extension.fqNameString
-import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isPrimitiveArray
-import com.dropdrage.simpleComposePreviewGenerator.utils.extension.isString
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.thisLogger
 import org.jetbrains.kotlin.builtins.isFunctionOrKFunctionTypeWithAnySuspendability
@@ -36,9 +34,12 @@ private typealias Value = String
 @Suppress("NOTHING_TO_INLINE")
 internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener {
 
+    private val PRIMITIVE_ARRAY_REGEX = Regex("""kotlin\.([a-zA-Z])+Array""")
+
     private val LOG = thisLogger()
 
     //region Settings
+
     private val USE_EMPTY_ARRAY_SETTING: Boolean
         get() = ConfigService.config.isEmptyBuilderForArrayEnabled
     private val USE_EMPTY_SEQUENCE_SETTING: Boolean
@@ -95,6 +96,8 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     private const val PERSISTENT_MAP_OF = "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.persistentMapOf()"
 
 
+    //region Supported Collections Defaults
+
     /**
      * Only List tree.
      */
@@ -125,16 +128,18 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     )
 
     private val supportedKotlinxImmutables: Map<FqNameString, Value> = hashMapOf(
-        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableCollection" to PERSISTENT_LIST_OF, // persistentSetOf(), persistentHashSetOf(),
+        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableCollection" to PERSISTENT_LIST_OF,
         "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableList" to PERSISTENT_LIST_OF,
-        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableSet" to PERSISTENT_SET_OF, // persistentHashSetOf(),
-        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableMap" to PERSISTENT_MAP_OF, // persistentHashMapOf(),
+        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableSet" to PERSISTENT_SET_OF,
+        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.ImmutableMap" to PERSISTENT_MAP_OF,
 
-        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentCollection" to PERSISTENT_LIST_OF, // persistentSetOf(), persistentHashSetOf(),
+        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentCollection" to PERSISTENT_LIST_OF,
         "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentList" to PERSISTENT_LIST_OF,
-        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentSet" to PERSISTENT_SET_OF, // persistentHashSetOf(),
-        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentMap" to PERSISTENT_MAP_OF, // persistentHashMapOf(),
+        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentSet" to PERSISTENT_SET_OF,
+        "$KOTLINX_COLLECTIONS_IMMUTABLE_PACKAGE.PersistentMap" to PERSISTENT_MAP_OF,
     )
+
+    //endregion
 
 
     init {
@@ -184,14 +189,8 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
     ): String = when {
         useNullForPrimitives && parameterValueType.isNullable() -> "null"
 
-//        parameterValueType.isBoolean() -> booleanProvider.getValue()
-
         parameterValueType.isChar() -> "''" // somehow it isPrimitiveNumberType
-//        parameterValueType.isPrimitiveNumberType() || parameterValueType.isUnsignedNumberType() ->
-//            integerProvider.getValue(parameterValueType)
-
-        parameterValueType.isString() || parameterValueType.matchesFqName(Classes.Kotlin.CharSequence.FQ_STRING) ->
-            "\"\""
+        parameterValueType.isString() -> "\"\""
 
         parameterValueType.isUnit() -> "Unit"
         parameterValueType.isNothing() -> "TODO()" // if return Nothing in lambda
@@ -201,9 +200,7 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         parameterValueType.isEnum() -> getEnumElement(parameterValueType) // ToDo print enum class
 
         parameterValueType.isPrimitiveArray() -> buildPrimitiveArray(parameterValueType)
-        parameterValueType.isArrayOrNullableArray() ->
-            if (USE_EMPTY_ARRAY_SETTING) EMPTY_ARRAY
-            else ARRAY_OF
+        parameterValueType.isArrayOrNullableArray() -> buildGenericArray()
 
         parameterValueType.isIterableListHasKotlinBuilder() -> buildIterableWithKotlinBuilder(parameterValueType)
         parameterValueType.isSetHasKotlinBuilder() -> buildSetWithKotlinBuilder(parameterValueType)
@@ -211,25 +208,32 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         parameterValueType.isImmutableHasKotlinBuilder() ->
             buildImmutablesWithKotlinBuilder(parameterValueType, defaultsSet)
 
-        parameterValueType.matchesFqName(KOTLIN_SEQUENCES_SEQUENCE) ->
-            if (USE_EMPTY_SEQUENCE_SETTING) EMPTY_SEQUENCE
-            else SEQUENCE_OF // sequence {}, emptySequence(), generateSequence { }
+        parameterValueType.isKotlinSequence() -> buildKotlinSequence()
 
         parameterValueType.isFunctionOrKFunctionTypeWithAnySuspendability ->
             buildLambdaDefault(parameterValueType, defaultsSet)
 
-        parameterValueType.matchesFqName(Classes.Compose.Modifier.FQ_STRING) -> defaultsSet.modifier
+        parameterValueType.isComposeModifier() -> getComposeModifier(defaultsSet)
 
-        else -> "" //buildCustomClass(parameterValueType, functionDeclarationDescriptor)
+        else -> ""
     }
 
 
-    private fun getEnumElement(parameterValueType: KotlinType): String {
+    private inline fun KotlinType.isString(): Boolean {
+        val fqNameString = fqNameString
+        return fqNameString == "java.lang.String"
+            || fqNameString == "kotlin.String"
+            || fqNameString == Classes.Kotlin.CharSequence.FQ_STRING
+    }
+
+    private inline fun getEnumElement(parameterValueType: KotlinType): String {
         val enumEntries = parameterValueType.toClassDescriptor!!.enumEntries()
         return enumEntries.first().fqNameSafeString
     }
 
-    private fun buildPrimitiveArray(parameterValueType: KotlinType): String =
+    internal fun KotlinType.isPrimitiveArray(): Boolean = PRIMITIVE_ARRAY_REGEX.matches(fqNameString)
+
+    private inline fun buildPrimitiveArray(parameterValueType: KotlinType): String =
         "${parameterValueType.classNameString.snakeCaseClassName()}Of()"
 
     private fun String.snakeCaseClassName(): String = with(StringBuilder(this)) {
@@ -241,23 +245,25 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         toString()
     }
 
+    private inline fun buildGenericArray(): String = if (USE_EMPTY_ARRAY_SETTING) EMPTY_ARRAY else ARRAY_OF
+
     private inline fun KotlinType.isIterableListHasKotlinBuilder(): Boolean =
         supportedIterableLists.containsKey(fqNameString)
 
     private inline fun buildIterableWithKotlinBuilder(parameterValueType: KotlinType): String =
         supportedIterableLists[parameterValueType.fqNameString]!!
 
-    private inline fun KotlinType.isMapHasKotlinBuilder(): Boolean =
-        supportedMaps.containsKey(fqNameString)
-
-    private inline fun buildMapWithKotlinBuilder(parameterValueType: KotlinType): String =
-        supportedMaps[parameterValueType.fqNameString]!!
-
     private inline fun KotlinType.isSetHasKotlinBuilder(): Boolean =
         supportedSets.containsKey(fqNameString)
 
     private inline fun buildSetWithKotlinBuilder(parameterValueType: KotlinType): String =
         supportedSets[parameterValueType.fqNameString]!!
+
+    private inline fun KotlinType.isMapHasKotlinBuilder(): Boolean =
+        supportedMaps.containsKey(fqNameString)
+
+    private inline fun buildMapWithKotlinBuilder(parameterValueType: KotlinType): String =
+        supportedMaps[parameterValueType.fqNameString]!!
 
     private inline fun KotlinType.isImmutableHasKotlinBuilder(): Boolean =
         supportedKotlinxImmutables.containsKey(fqNameString)
@@ -266,6 +272,10 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
         parameterValueType: KotlinType,
         defaultsSet: DefaultsSet,
     ): String = defaultsSet.kotlinxImmutables[parameterValueType.fqNameString]!!
+
+    private inline fun KotlinType.isKotlinSequence(): Boolean = matchesFqName(KOTLIN_SEQUENCES_SEQUENCE)
+
+    private inline fun buildKotlinSequence(): String = if (USE_EMPTY_SEQUENCE_SETTING) EMPTY_SEQUENCE else SEQUENCE_OF
 
     private fun buildLambdaDefault(
         parameterValueType: KotlinType,
@@ -297,6 +307,10 @@ internal object DefaultValuesProvider : PreviewGenerationSettingsChangeListener 
 
         append('}')
     }
+
+    private inline fun KotlinType.isComposeModifier(): Boolean = matchesFqName(Classes.Compose.Modifier.FQ_STRING)
+
+    private inline fun getComposeModifier(defaultsSet: DefaultsSet): String = defaultsSet.modifier
 
 
     enum class DefaultsSet(
