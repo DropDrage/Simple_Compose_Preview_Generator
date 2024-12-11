@@ -46,11 +46,9 @@ internal object PreviewFunctionToFileWriter {
         functionWithPreview: FunctionWithPreview,
         newLine: PsiElement,
         argumentsTemplate: Template,
-    ) {
-        write(project, editor, file, listOf(functionWithPreview), newLine, false, true) {
-            val templateManager = TemplateManager.getInstance(project)
-            templateManager.startTemplate(editor!!, argumentsTemplate)
-        }
+    ) = write(project, editor, file, listOf(functionWithPreview), newLine, false, true) {
+        val templateManager = TemplateManager.getInstance(project)
+        templateManager.startTemplate(editor!!, argumentsTemplate)
     }
 
     fun write(
@@ -59,9 +57,7 @@ internal object PreviewFunctionToFileWriter {
         file: KtFile,
         functionWithPreviews: List<FunctionWithPreview>,
         newLine: PsiElement,
-    ) {
-        write(project, editor, file, functionWithPreviews, newLine, true, false)
-    }
+    ) = write(project, editor, file, functionWithPreviews, newLine, true, false)
 
     private fun write(
         project: Project,

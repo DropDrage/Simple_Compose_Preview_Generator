@@ -7,6 +7,6 @@
 
 package com.dropdrage.simpleComposePreviewGenerator.config
 
-interface Titled {
+internal interface Titled {
     val title: String
 }

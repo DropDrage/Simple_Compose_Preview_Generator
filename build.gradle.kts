@@ -1,7 +1,8 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-import org.gradle.api.provider.Provider
+import org.jetbrains.intellij.platform.gradle.Constants.Configurations
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 import org.jetbrains.intellij.platform.gradle.models.ProductRelease
 import java.io.FileInputStream
 import java.io.InputStreamReader
@@ -9,12 +10,12 @@ import java.util.*
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.0.20"
+    id("org.jetbrains.kotlin.jvm") version "2.1.0"
     id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
 group = "com.dropdrage"
-version = "0.34"
+version = "0.41"
 
 val targetIde = TargetIde.valueOf(
     (project.properties.getOrDefault("targetIde", TargetIde.AS.name).toString()),
@@ -105,6 +106,12 @@ intellijPlatform {
                 local(getLocalProperty("ICE_LOCAL_PATH"))
             }
         }
+    }
+}
+
+configurations {
+    named(Configurations.INTELLIJ_PLATFORM_BUNDLED_MODULES) {
+        exclude(Configurations.Dependencies.BUNDLED_MODULE_GROUP, "com.jetbrains.performancePlugin")
     }
 }
 

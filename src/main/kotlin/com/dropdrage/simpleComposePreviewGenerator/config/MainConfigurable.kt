@@ -16,18 +16,19 @@ import com.dropdrage.simpleComposePreviewGenerator.utils.i18n.SimpleComposePrevi
 import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.ComboBox
-import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.EnumComboBoxModel
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.not
 import com.intellij.ui.layout.selected
-import javax.swing.JLabel
 import kotlin.reflect.KMutableProperty0
 
 @Suppress("NOTHING_TO_INLINE")
-class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), "SimpleComposePreviewGenerator") {
+internal class MainConfigurable : BoundSearchableConfigurable(
+    message("settings.title"),
+    "SimpleComposePreviewGenerator",
+) {
 
     override fun createPanel() = panel {
         codeStyleSettings()
@@ -40,11 +41,11 @@ class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), 
             ConfigService.config::firstAnnotation.toNullableProperty(),
         )
         labeledComboBoxRow<PreviewBodyType>(
-            message("settings.codeStyle.previewFunction.bodyType"),
+            message("settings.codeStyle.previewFunction.bodyType.label"),
             ConfigService.config::previewBodyType.toNullableProperty(),
         )
         labeledComboBoxRow<PreviewLocation>(
-            message("settings.codeStyle.previewFunction.location"),
+            message("settings.codeStyle.previewFunction.location.label"),
             ConfigService.config::previewLocation.toNullableProperty(),
         )
 
@@ -94,7 +95,7 @@ class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), 
 
         row { text(message("settings.argumentsGeneration.useEmptyCollectionBuilders.label")) }
             .topGap(TopGap.SMALL)
-            .contextHelp(message("settings.argumentsGeneration.useEmptyCollectionBuilders.tooltip"))
+            .contextHelp(message("settings.argumentsGeneration.useEmptyCollectionBuilders.help"))
         indent {
             row {
                 checkBox(
@@ -121,12 +122,6 @@ class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), 
                 )
             }.layout(RowLayout.PARENT_GRID)
         }
-
-//        row {
-//            checkBox("Use null for nullable classes")
-//                .bindSelected(prop = DefaultValuesProvider::useNull)
-//                .align(AlignY.TOP)
-//        }
     }
 
     private inline fun Panel.checkBoxRow(text: String, prop: KMutableProperty0<Boolean>) = row {
@@ -151,26 +146,11 @@ class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), 
     )
 
 
-    private inline fun <T : Titled> Row.labeledComboBox(title: String, list: List<T>): Cell<ComboBox<T>> {
-        text(title)
-        return simpleComboBox<T>(list)
-    }
-
-    private inline fun <T : Titled> Row.simpleComboBox(list: List<T>) = comboBox(
-        model = CollectionComboBoxModel(list),
-        renderer = { _, value, _, _, _ -> JLabel(value?.title) },
-    )
-
-
     override fun apply() {
         super.apply()
 
-        invokeLater {
-            PreviewGenerationSettingsChangePublisher.onChanged()
-        }
-        invokeLater {
-            PreviewPositionChangePublisher.onPreviewPositionChanged()
-        }
+        invokeLater { PreviewGenerationSettingsChangePublisher.onChanged() }
+        invokeLater { PreviewPositionChangePublisher.onPreviewPositionChanged() }
     }
 
 }
