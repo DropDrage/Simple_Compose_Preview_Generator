@@ -19,6 +19,7 @@ class Config : BaseState() {
     var previewBodyType by enum(PreviewBodyType.BLOCK)
     var previewLocation by enum(PreviewLocation.FILE_END)
     var isTrailingCommaEnabled by property(true)
+    var isSingleBlankLineBeforePreviewForced by property(true)
     //endregion
 
     //region Generation

@@ -48,8 +48,14 @@ class MainConfigurable : BoundSearchableConfigurable(message("settings.title"), 
             ConfigService.config::previewLocation.toNullableProperty(),
         )
 
-        checkBoxRow(message("settings.codeStyle.trailingComma.label"), ConfigService.config::isTrailingCommaEnabled)
-            .topGap(TopGap.SMALL)
+        checkBoxRow(
+            message("settings.codeStyle.trailingComma.label"),
+            ConfigService.config::isTrailingCommaEnabled,
+        ).topGap(TopGap.SMALL)
+        checkBoxRow(
+            message("settings.codeStyle.forceBlankLineBeforePreview.label"),
+            ConfigService.config::isSingleBlankLineBeforePreviewForced,
+        ).topGap(TopGap.SMALL).contextHelp(message("settings.codeStyle.forceBlankLineBeforePreview.help"))
     }
 
     private fun Panel.generationSimplificationSettings() = group(message("settings.argumentsGeneration.title")) {
