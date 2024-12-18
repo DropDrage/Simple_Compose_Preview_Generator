@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.idea.base.projectStructure.scope.KotlinSourceFilterScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelFunctionFqnNameIndex
 
-internal typealias ThemeIndexValue = Collection<String> // ToDo Set<>
+internal typealias ThemeIndexValue = List<String> // ToDo Set<>
 
 internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexValue>() {
 
@@ -69,16 +69,13 @@ internal class ComposeThemeIndex : FileBasedIndexExtension<String, ThemeIndexVal
             )
 
             allThemes.fastForEach { fileThemes ->
-                fileThemes.forEach { themeFqString ->
-                    val themeFunction = KotlinTopLevelFunctionFqnNameIndex.get(
-                        themeFqString,
-                        project,
-                        kotlinSourcesScope,
-                    ).firstOrNull()
-
-                    if (themeFunction?.descriptorWithVisibility?.isAccessibleFrom(functionDeclarationDescriptor) == true) {
-                        return themeFqString
-                    }
+                fileThemes.fastForEach { themeFqString ->
+                    KotlinTopLevelFunctionFqnNameIndex.get(themeFqString, project, kotlinSourcesScope)
+                        .forEach { themeFunction ->
+                            if (themeFunction.descriptorWithVisibility.isAccessibleFrom(functionDeclarationDescriptor)) {
+                                return themeFqString
+                            }
+                        }
                 }
             }
             return null

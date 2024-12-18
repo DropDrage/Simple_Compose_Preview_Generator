@@ -8,13 +8,14 @@
 package com.dropdrage.simpleComposePreviewGenerator.utils.extension
 
 import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.annotations.NonNls
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.measureTime
 
 @OptIn(ExperimentalContracts::class)
-inline fun Logger.logTimeOnDebug(label: String, block: () -> Unit) {
+inline fun Logger.logTimeOnDebug(@NonNls label: String, block: () -> Unit) {
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }

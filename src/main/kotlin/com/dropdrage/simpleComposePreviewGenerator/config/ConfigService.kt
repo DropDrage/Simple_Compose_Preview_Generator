@@ -15,7 +15,7 @@ import com.intellij.openapi.components.Storage
 
 @State(
     name = "Simple Compose Preview Generator",
-    storages = [Storage("SimpleComposePreviewGenerator.xml")],
+    storages = [Storage("SimpleComposePreviewGenerator.xml", exportable = true)],
     category = SettingsCategory.PLUGINS,
 )
 class ConfigService : SimplePersistentStateComponent<Config>(Config()) {

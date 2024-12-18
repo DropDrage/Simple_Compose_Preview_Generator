@@ -13,7 +13,7 @@ import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewBodyType
 import com.dropdrage.simpleComposePreviewGenerator.utils.constant.Classes
 
 @Suppress("NOTHING_TO_INLINE")
-internal object PreviewFunctionGenerator {
+internal object PreviewFunctionGenerator { // ToDo generate PSI instead of string
 
     private val isPreviewFirstSetting: Boolean
         get() = ConfigService.config.firstAnnotation == FirstAnnotation.PREVIEW
@@ -43,7 +43,7 @@ internal object PreviewFunctionGenerator {
         if (isExpressionBody) {
             append("= ")
         } else {
-            append(" {\n")
+            append("{\n")
         }
 
         if (theme != null) append(theme).append("{\n")

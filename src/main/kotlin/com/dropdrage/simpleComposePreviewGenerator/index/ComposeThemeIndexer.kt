@@ -32,7 +32,7 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
         KotlinFileType.INSTANCE -> {
             val map = mutableMapOf<String, MutableList<String>>()
             val visitor = ComposeThemeVisitor {
-                map.getOrPut(THEMES_KEY) { mutableListOf() } += it
+                map.getOrPut(THEMES_KEY, ::mutableListOf) += it
             }
             fileContent.psiFile.accept(visitor) // ToDo compare performance with manual
             map
@@ -55,13 +55,12 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
             }
         }
 
-        private fun KtNamedFunction.isComposableTheme(): Boolean {
-            return name?.endsWith(THEMES_KEY) == true
+        private fun KtNamedFunction.isComposableTheme(): Boolean =
+            name?.endsWith(THEMES_KEY) == true
                 && canBeComposableTheme(annotationEntries)
                 && anyDescendantOfType<KtCallExpression> {
                 it.callName() == Classes.Compose.Function.MaterialTheme.SHORT_NAME
             }
-        }
 
         private fun canBeComposableTheme(annotationEntries: List<KtAnnotationEntry>): Boolean {
             var isComposableFunction = false

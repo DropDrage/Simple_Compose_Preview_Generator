@@ -19,6 +19,7 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.idea.codeinsight.utils.commitAndUnblockDocument
 import org.jetbrains.kotlin.idea.core.ShortenReferences
@@ -46,10 +47,14 @@ internal object PreviewFunctionToFileWriter {
         functionWithPreview: FunctionWithPreview,
         newLine: PsiElement,
         argumentsTemplate: Template,
-    ) = write(project, editor, file, listOf(functionWithPreview), newLine, false, true) {
-        val templateManager = TemplateManager.getInstance(project)
-        templateManager.startTemplate(editor!!, argumentsTemplate)
-    }
+    ) = write(
+        project,
+        editor,
+        file,
+        listOf(functionWithPreview),
+        newLine,
+        PreviewWriteType.SinglePreviewWithLiveTemplateWrite(argumentsTemplate),
+    )
 
     fun write(
         project: Project,
@@ -57,7 +62,7 @@ internal object PreviewFunctionToFileWriter {
         file: KtFile,
         functionWithPreviews: List<FunctionWithPreview>,
         newLine: PsiElement,
-    ) = write(project, editor, file, functionWithPreviews, newLine, true, false)
+    ) = write(project, editor, file, functionWithPreviews, newLine, PreviewWriteType.MultiplePreviewsWrite)
 
     private fun write(
         project: Project,
@@ -65,32 +70,89 @@ internal object PreviewFunctionToFileWriter {
         file: KtFile,
         functionWithPreviews: List<FunctionWithPreview>,
         newLine: PsiElement,
-        isCommandRequired: Boolean,
-        shouldMoveToArgumentsListStart: Boolean,
-        afterWriteAction: (() -> Unit)? = null,
+        previewWriteType: PreviewWriteType,
     ) {
         val writeAction = PreviewWriteAction.Builder()
-            .writePreview(editor, file, functionWithPreviews, newLine, shouldMoveToArgumentsListStart, afterWriteAction)
+            .writePreview(
+                editor,
+                file,
+                functionWithPreviews,
+                newLine,
+                previewWriteType.shouldMoveToArgumentsListStart,
+            )
             .applyIf(isSingleBlankLineBeforePreviewForced) { forceBlankLineBeforePreview(project) }
+            .apply {
+                if (previewWriteType is PreviewWriteType.SinglePreviewWithLiveTemplateWrite) {
+                    startLiveTemplate(project, editor!!, previewWriteType.argumentsTemplate)
+                }
+            }
             .build()
 
-        if (isCommandRequired) {
+        if (previewWriteType.isCommandRequired) { // Generate All
             project.executeWriteCommand(WRITE_COMPOSE_PREVIEW_COMMAND, writeAction)
         } else {
+//            WriteCommandAction.runWriteCommandAction(project, writeAction)
             WriteAction.run<Throwable>(writeAction)
         }
     }
 
-    private fun moveCaretAndScroll(editor: Editor?, firstElementTextOffset: Int) {
-        editor?.apply {
-            LOG.debug("Element position: $firstElementTextOffset")
-            caretModel.primaryCaret.moveToOffset(firstElementTextOffset)
-            scrollingModel.scrollToCaret(ScrollType.CENTER)
-        }
+
+    private sealed class PreviewWriteType(
+        val isCommandRequired: Boolean,
+        val shouldMoveToArgumentsListStart: Boolean,
+    ) {
+        object MultiplePreviewsWrite : PreviewWriteType(true, false)
+        class SinglePreviewWithLiveTemplateWrite(val argumentsTemplate: Template) : PreviewWriteType(false, true)
     }
 
 
     private abstract class PreviewWriteAction : () -> Unit {
+
+        class Builder {
+
+            private lateinit var previewWriteAction: PreviewWriteAction
+
+
+            fun writePreview(
+                editor: Editor?,
+                file: KtFile,
+                functionWithPreviews: List<FunctionWithPreview>,
+                newLine: PsiElement,
+                shouldMoveToArgumentsListStart: Boolean,
+            ) = apply {
+                previewWriteAction = PreviewWrite(
+                    editor,
+                    file,
+                    functionWithPreviews,
+                    newLine,
+                    shouldMoveToArgumentsListStart,
+                )
+            }
+
+            fun forceBlankLineBeforePreview(project: Project) = apply {
+                previewWriteAction = ForceBlankLineBeforePreviewAction(
+                    project,
+                    previewWriteAction,
+                )
+            }
+
+            fun startLiveTemplate(
+                project: Project,
+                editor: Editor,
+                argumentsTemplate: Template,
+            ) = apply {
+                previewWriteAction = StartLiveTemplateAfterWrite(
+                    PsiDocumentManager.getInstance(project),
+                    TemplateManager.getInstance(project),
+                    editor,
+                    argumentsTemplate,
+                    previewWriteAction,
+                )
+            }
+
+            fun build(): PreviewWriteAction = previewWriteAction
+
+        }
 
         private class PreviewWrite(
             private val editor: Editor?,
@@ -98,7 +160,6 @@ internal object PreviewFunctionToFileWriter {
             private val functionWithPreviews: List<FunctionWithPreview>,
             private val newLine: PsiElement,
             private val shouldMoveToArgumentsListStart: Boolean,
-            private val afterWriteAction: (() -> Unit)? = null,
         ) : PreviewWriteAction() {
             override fun invoke() {
                 val shortenReferences = ShortenReferences.DEFAULT
@@ -111,12 +172,18 @@ internal object PreviewFunctionToFileWriter {
                         shouldMoveToArgumentsListStart,
                     )
                 }
-                moveCaretAndScroll(editor, argumentsStartPosition)
+                moveCaretAndScroll(argumentsStartPosition)
 
                 LOG.logTimeOnDebug("Commit") { file.commitAndUnblockDocument() }
                 LOG.logTimeOnDebug("Shorten") { shortenReferences.process(file) }
+            }
 
-                afterWriteAction?.invoke()
+            private fun moveCaretAndScroll(firstElementTextOffset: Int) {
+                editor?.apply {
+                    LOG.debug("Element position: $firstElementTextOffset")
+                    caretModel.primaryCaret.moveToOffset(firstElementTextOffset)
+                    scrollingModel.scrollToCaret(ScrollType.CENTER)
+                }
             }
         }
 
@@ -148,39 +215,20 @@ internal object PreviewFunctionToFileWriter {
 
         }
 
+        private class StartLiveTemplateAfterWrite(
+            private val psiDocumentManager: PsiDocumentManager,
+            private val templateManager: TemplateManager,
+            private val editor: Editor,
+            private val argumentsTemplate: Template,
+            private val action: PreviewWriteAction,
+        ) : PreviewWriteAction() {
+            override fun invoke() {
+                action()
 
-        class Builder {
+                psiDocumentManager.doPostponedOperationsAndUnblockDocument(editor.document)
 
-            private var previewWriteAction: PreviewWriteAction? = null
-
-
-            fun writePreview(
-                editor: Editor?,
-                file: KtFile,
-                functionWithPreviews: List<FunctionWithPreview>,
-                newLine: PsiElement,
-                shouldMoveToArgumentsListStart: Boolean,
-                afterWriteAction: (() -> Unit)? = null,
-            ) = apply {
-                previewWriteAction = PreviewWrite(
-                    editor,
-                    file,
-                    functionWithPreviews,
-                    newLine,
-                    shouldMoveToArgumentsListStart,
-                    afterWriteAction,
-                )
+                templateManager.startTemplate(editor, argumentsTemplate)
             }
-
-            fun forceBlankLineBeforePreview(project: Project) = apply {
-                previewWriteAction = ForceBlankLineBeforePreviewAction(
-                    project,
-                    previewWriteAction ?: error("Call smth else before use this"),
-                )
-            }
-
-            fun build(): PreviewWriteAction = previewWriteAction ?: error("Nothing to build")
-
         }
 
     }
