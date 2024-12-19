@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "com.dropdrage"
-version = "0.41"
+version = "0.36.6"
 
 val targetIde = TargetIde.valueOf(
     (project.properties.getOrDefault("targetIde", TargetIde.AS.name).toString()),
