@@ -15,29 +15,47 @@
     <resource-bundle>messages.SimpleComposePreviewGeneratorBundle</resource-bundle>
 
     <description><![CDATA[
-        Generates a preview with theme (if enabled) and arguments for @Compose function quickly and without the Internet.
-        The average execution time is just over 1s regardless of the arguments count at least on my machine.
+        Generates a Jetpack Compose Preview with arguments and wraps (if enabled) into an auto-detected theme
+        quickly and without the Internet.
         <p>
-            Can be run for all the functions <b>without Previews</b> in file using
-            Generate (<code>Alt</code>+<code>Insert</code> by default) -> Generate All Compose Previews.
+            Can be run for:
+        </p>
+        <ul>
+            <li>A single function using
+                <code>Alt</code>+<code>Enter</code> (Windows/Linux) / <code>⌥⏎</code> (macOS) ->
+                Generate Compose Preview</li>
+            <li>All the functions in file without preview using
+                <code>Alt</code>+<code>Insert</code> (Windows/Linux) / <code>⌘N</code> (macOS) ->
+                Generate All Remaining Compose Previews
+            </li>
+        </ul>
+
+        <p>
+            Generated preview function is private and ends with configurable suffix ("Preview" by default).
+            If "Add theme" option is enabled the composable function call will be wrapped into first accessible theme.
         </p>
         <p>
-            Generation can be configured (First annotation, Preview function body type,
-            Empty collection builders, Add theme and etc).
+            Generation can be configured:
         </p>
-        <p>
-            Generated preview function is private and ends with Preview suffix.
-            If Add theme option is enabled the composable function call will be wrapped in first accessible theme.
-        </p>
+        <ul>
+            <li>General: Preview function name suffix</li>
+            <li>Code Style: First annotation, Preview function body type, Preview function location, Trailing comma,
+                Force single blank line before Preview
+            </li>
+            <li>Arguments Generation: Generate function arguments with default values, Skip ViewModel, Generate Modifier,
+                Assign null values for nullable arguments, Add theme, Use empty collection builders
+            </li>
+        </ul>
         <p>
             After generation all the arguments can be edited with IDE smart autocompletion.
             Arguments of some types are provided with default simplifying elements
-            (e.g. <code>String</code> argument is generated with <code>""</code> value)
+            (e.g. <code>String</code> argument is generated with <code>""</code> value).
         </p>
-
-        Argument types that generated with default simplifying elements:
-		<ul>
-		    <li>Nullable types (disabled by default)</li>
+        <p>
+            Argument types that generated with default simplifying elements:
+        </p>
+        <ul>
+            <li>Nullable types (disabled by default)</li>
             <li>Enums</li>
             <li>Lambdas</li>
             <li><code>Char</code></li>
@@ -45,7 +63,8 @@
             <li><code>Unit</code>, <code>Nothing</code></li>
             <li><code>Modifier</code></li>
             <li>Arrays: <code>Array</code>, <code>IntArray</code>, <code>UIntArray</code>,
-                <code>FloatArray</code> and etc.</li>
+                <code>FloatArray</code> and etc.
+            </li>
             <li>Iterables: <code>Iterable</code>, <code>Collection</code>, <code>List</code>,
                 <code>MutableList</code>, <code>AbstractList</code>, <code>ArrayList</code></li>
             <li>Sets: <code>Set</code>, <code>MutableSet</code>, <code>HashSet</code>, <code>LinkedHashSet</code>,
@@ -56,7 +75,7 @@
             <li>Kotlin Immutable Collections: <code>ImmutableCollection</code>, <code>ImmutableList</code>,
                 <code>ImmutableSet</code>, <code>ImmutableMap</code> and same for <code>Persistent</code> ones
             </li>
-		</ul>
+        </ul>
  ]]></description>
 
     <change-notes><![CDATA[
