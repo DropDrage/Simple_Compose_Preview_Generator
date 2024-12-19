@@ -14,6 +14,12 @@ import com.intellij.openapi.components.BaseState
 
 class Config : BaseState() {
 
+    //region General
+    var previewFunctionNameSuffix by string(DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX)
+    val notNullPreviewFunctionNameSuffix: String
+        get() = previewFunctionNameSuffix ?: DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX
+    //endregion
+
     //region Code Style
     var firstAnnotation by enum(FirstAnnotation.PREVIEW)
     var previewBodyType by enum(PreviewBodyType.BLOCK)
@@ -22,7 +28,7 @@ class Config : BaseState() {
     var isSingleBlankLineBeforePreviewForced by property(true)
     //endregion
 
-    //region Generation
+    //region Arguments Generation
     var isDefaultsGenerationEnabled by property(false)
     var isSkipViewModel by property(true)
     var isModifierGenerationEnabled by property(true)
@@ -35,5 +41,10 @@ class Config : BaseState() {
     var isEmptyBuilderForArrayEnabled by property(false)
     var isEmptyBuilderForSequenceEnabled by property(false)
     //endregion
+
+
+    companion object {
+        internal const val DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX = "Preview"
+    }
 
 }

@@ -22,6 +22,9 @@ internal object PreviewFunctionGenerator { // ToDo generate PSI instead of strin
     private val isThemeEnabled: Boolean
         get() = ConfigService.config.isThemeEnabled
 
+    private val previewFunctionNameSuffix: String
+        get() = ConfigService.config.notNullPreviewFunctionNameSuffix
+
 
     fun generateString(
         annotations: AnnotationsSet,
@@ -38,7 +41,7 @@ internal object PreviewFunctionGenerator { // ToDo generate PSI instead of strin
             appendAnnotation(annotations.composable)
             appendAnnotation(annotations.preview)
         }
-        append("private fun ").append(functionName).append("Preview() ")
+        append("private fun ").append(functionName).append(previewFunctionNameSuffix).append("() ")
         val isExpressionBody = theme != null && isPreviewHasExpressionBody
         if (isExpressionBody) {
             append("= ")

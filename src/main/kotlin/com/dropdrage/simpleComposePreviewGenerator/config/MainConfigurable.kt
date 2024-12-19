@@ -7,15 +7,23 @@
 
 package com.dropdrage.simpleComposePreviewGenerator.config
 
+import com.dropdrage.simpleComposePreviewGenerator.config.Config.Companion.DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.FirstAnnotation
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewBodyType
 import com.dropdrage.simpleComposePreviewGenerator.config.enum.PreviewLocation
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewGenerationSettingsChangePublisher
 import com.dropdrage.simpleComposePreviewGenerator.config.listener.PreviewPositionChangePublisher
 import com.dropdrage.simpleComposePreviewGenerator.utils.i18n.SimpleComposePreviewGeneratorBundle.message
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.observable.properties.AtomicBooleanProperty
+import com.intellij.openapi.observable.util.whenMousePressed
+import com.intellij.openapi.observable.util.whenTextChanged
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.ui.validation.CHECK_NON_EMPTY
+import com.intellij.openapi.ui.validation.CHECK_NO_WHITESPACES
+import com.intellij.openapi.ui.validation.validationErrorIf
 import com.intellij.ui.EnumComboBoxModel
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
@@ -30,9 +38,48 @@ internal class MainConfigurable : BoundSearchableConfigurable(
     "SimpleComposePreviewGenerator",
 ) {
 
+    private val invalidCharactersValidationRegex = INVALID_CHARACTERS_VALIDATION_REGEX.toRegex()
+
+
     override fun createPanel() = panel {
+        generalSettings()
+
         codeStyleSettings()
         generationSimplificationSettings()
+    }
+
+    private fun Panel.generalSettings() = group(title = message("settings.general.title")) {
+        row {
+            val isResetButtonVisible = AtomicBooleanProperty(
+                ConfigService.config.previewFunctionNameSuffix != DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX,
+            )
+            val previewSuffixField = textField()
+                .label(message("settings.general.preview.suffix.label"))
+                .bindText(
+                    ConfigService.config::previewFunctionNameSuffix.toNonNullableProperty(
+                        DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX,
+                    )
+                )
+                .textValidation(
+                    CHECK_NO_WHITESPACES,
+                    validationErrorIf<String>(
+                        message("settings.general.preview.suffix.error.invalidCharacters"),
+                        invalidCharactersValidationRegex::containsMatchIn,
+                    ),
+                )
+                .trimmedTextValidation(CHECK_NON_EMPTY)
+                .apply {
+                    component.whenTextChanged {
+                        isResetButtonVisible.set(component.text != DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX)
+                    }
+                }
+
+            cell(
+                JBLabel(AllIcons.General.Reset).apply {
+                    whenMousePressed { previewSuffixField.text(DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX) }
+                }
+            ).visibleIf(isResetButtonVisible)
+        }
     }
 
     private fun Panel.codeStyleSettings() = group(title = message("settings.codeStyle.title")) {
@@ -151,6 +198,11 @@ internal class MainConfigurable : BoundSearchableConfigurable(
 
         invokeLater { PreviewGenerationSettingsChangePublisher.onChanged() }
         invokeLater { PreviewPositionChangePublisher.onPreviewPositionChanged() }
+    }
+
+
+    companion object {
+        private const val INVALID_CHARACTERS_VALIDATION_REGEX = """\W+"""
     }
 
 }
