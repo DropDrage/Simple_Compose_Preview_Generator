@@ -21,12 +21,12 @@ import com.intellij.openapi.components.Storage
 class ConfigService : SimplePersistentStateComponent<Config>(Config()) {
     companion object {
 
-        private val ConfigInstance by lazy(LazyThreadSafetyMode.NONE) {
+        private val instance by lazy(LazyThreadSafetyMode.NONE) {
             ApplicationManager.getApplication().getService(ConfigService::class.java)
         }
 
         val config: Config
-            get() = ConfigInstance.state
+            get() = instance.state
 
     }
 }

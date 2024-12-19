@@ -118,8 +118,7 @@ internal class MainConfigurable : BoundSearchableConfigurable(
             checkBoxRow(
                 message("settings.argumentsGeneration.skipViewModel.label"),
                 ConfigService.config::isSkipViewModel
-            )
-                .enabledIf(generateDefaultsCheckBox.selected)
+            ).enabledIf(generateDefaultsCheckBox.selected)
             row {
                 val modifierGenerationCheckBox = checkBox(
                     message("settings.argumentsGeneration.generateModifier.label"),
