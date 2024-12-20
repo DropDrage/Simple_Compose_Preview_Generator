@@ -68,7 +68,7 @@ intellijPlatform {
     }
 
     publishing {
-        token.set(env.getOrDefault("PUBLISH_TOKEN", getLocalPropertyUnsafe("PUBLISH_TOKEN")))
+        token.set(env.getOrDefault("PUBLISH_TOKEN", File(getLocalPropertyUnsafe("PUBLISH_TOKEN")!!).readText()))
         channels.set(listOf(env["PUBLISH_CHANNEL"] ?: "default"))
     }
 
