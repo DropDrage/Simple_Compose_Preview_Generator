@@ -79,6 +79,13 @@
  ]]></description>
 
     <change-notes><![CDATA[
+        <h3>0.36.6</h3>
+		<ul>
+			<li>Configurable Preview suffix</li>
+			<li>Changed label for Generate All action</li>
+			<li>Fixed kotlinx.collections.immutable packages displaying in action preview</li>
+			<li>Added option to force single blank line before Preview</li>
+		</ul>
         <h3>0.34</h3>
 		<ul>
 			<li>Preview generation</li>
