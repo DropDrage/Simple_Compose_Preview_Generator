@@ -14,7 +14,6 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileContent
 import org.jetbrains.kotlin.idea.KotlinFileType
-import org.jetbrains.kotlin.idea.debugger.sequence.psi.callName
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -59,7 +58,7 @@ internal object ComposeThemeIndexer : DataIndexer<String, ThemeIndexValue, FileC
             name?.endsWith(THEMES_KEY) == true
                 && canBeComposableTheme(annotationEntries)
                 && anyDescendantOfType<KtCallExpression> {
-                it.callName() == Classes.Compose.Function.MaterialTheme.SHORT_NAME
+                it.calleeExpression?.text == Classes.Compose.Function.MaterialTheme.SHORT_NAME
             }
 
         private fun canBeComposableTheme(annotationEntries: List<KtAnnotationEntry>): Boolean {

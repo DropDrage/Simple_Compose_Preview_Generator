@@ -69,14 +69,14 @@ intellijPlatform {
     }
 
     publishing {
-        token.set(env.getOrDefault("PUBLISH_TOKEN", File(getLocalPropertyUnsafe("PUBLISH_TOKEN")!!).readText()))
+        token.set(env.getOrDefault("PUBLISH_TOKEN", file(getLocalPropertyUnsafe("PUBLISH_TOKEN")!!).readText()))
         channels.set(listOf(env["PUBLISH_CHANNEL"] ?: "default"))
     }
 
     signing {
-        certificateChainFile.set(File(getEnvOrLocalProperty("CERTIFICATE_CHAIN_FILE")))
-        privateKeyFile.set(File(getEnvOrLocalProperty("PRIVATE_KEY_FILE")))
-        password.set(File(getEnvOrLocalProperty("PRIVATE_KEY_PASSWORD_FILE")).readText(Charsets.UTF_8))
+        certificateChainFile.set(file(getEnvOrLocalProperty("CERTIFICATE_CHAIN_FILE")))
+        privateKeyFile.set(file(getEnvOrLocalProperty("PRIVATE_KEY_FILE")))
+        password.set(file(getEnvOrLocalProperty("PRIVATE_KEY_PASSWORD_FILE")).readText(Charsets.UTF_8))
     }
 
     pluginVerification {

@@ -18,7 +18,6 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.observable.util.whenMousePressed
-import com.intellij.openapi.observable.util.whenTextChanged
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.validation.CHECK_NON_EMPTY
@@ -68,15 +67,14 @@ internal class MainConfigurable : BoundSearchableConfigurable(
                     ),
                 )
                 .trimmedTextValidation(CHECK_NON_EMPTY)
-                .apply {
-                    component.whenTextChanged {
-                        isResetButtonVisible.set(component.text != DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX)
-                    }
-                }
+                .whenTextChangedFromUi { isResetButtonVisible.set(it != DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX) }
 
             cell(
                 JBLabel(AllIcons.General.Reset).apply {
-                    whenMousePressed { previewSuffixField.text(DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX) }
+                    whenMousePressed {
+                        previewSuffixField.text(DEFAULT_PREVIEW_FUNCTION_NAME_SUFFIX)
+                        isResetButtonVisible.set(false)
+                    }
                 }
             ).visibleIf(isResetButtonVisible)
         }
