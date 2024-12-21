@@ -64,6 +64,7 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = properties("pluginSinceBuild")
+            untilBuild = provider { null }
         }
     }
 
